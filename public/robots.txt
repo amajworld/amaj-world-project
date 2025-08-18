@@ -1,0 +1,10 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow: /admin/
+Disallow: /login
+
+# Allow all other pages
+Allow: /
+
+# Point to the sitemap (replace yourdomain.com with your actual domain)
+Sitemap: https://yourdomain.com/sitemap.xml
