@@ -7,6 +7,7 @@ import Sidebar from '@/components/Sidebar';
 import { Card, CardContent } from '@/components/ui/card';
 import { getDocuments } from '@/app/actions/firestoreActions';
 import type { Metadata, ResolvingMetadata } from 'next';
+import RelatedPosts from '@/components/RelatedPosts';
 
 // This function tells Next.js which slugs to pre-render at build time
 export async function generateStaticParams() {
@@ -63,6 +64,17 @@ export default async function PostPage({ params }: { params: { slug: string }}) 
     notFound();
   }
 
+  const relatedPosts = await getDocuments<Post>('posts', {
+      where: [
+          ['status', '==', 'published'],
+          ['category', '==', post.category],
+      ],
+      limit: 4, // Fetch a few extra to filter out the current post
+  });
+
+  const filteredRelatedPosts = relatedPosts.filter(p => p.id !== post.id).slice(0, 3);
+
+
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -86,6 +98,9 @@ export default async function PostPage({ params }: { params: { slug: string }}) 
                     </article>
                 </CardContent>
             </Card>
+
+            {filteredRelatedPosts.length > 0 && <RelatedPosts posts={filteredRelatedPosts} />}
+
         </main>
          <aside className="lg:col-span-4">
             <Sidebar />
@@ -94,5 +109,3 @@ export default async function PostPage({ params }: { params: { slug: string }}) 
     </div>
   );
 }
-
-    
