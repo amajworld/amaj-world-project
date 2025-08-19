@@ -108,7 +108,7 @@ export default function SiteFooter() {
              <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
                 {popularTags.map(tag => (
                     <li key={tag}>
-                        <Link href="#" className="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
+                        <Link href={`/tags/${encodeURIComponent(tag)}`} className="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
                             {tag}
                         </Link>
                     </li>
@@ -133,7 +133,7 @@ export default function SiteFooter() {
         
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700 flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 md:mb-0">
-                {isLoading ? '...' : (settings?.copyrightText || `© ${new Date().getFullYear()} Amaj World. All rights reserved.`)}
+                {isLoading ? '...' : (settings?.copyrightText || `© ${new Date().getFullYear()} Amaj Worlds. All rights reserved.`)}
             </p>
              <div className="flex space-x-4">
                 {socialLinks.map((link) => {

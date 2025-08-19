@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getDocuments } from '@/app/actions/firestoreActions';
 import type { Metadata, ResolvingMetadata } from 'next';
 import RelatedPosts from '@/components/RelatedPosts';
+import Link from 'next/link';
 
 // This function tells Next.js which slugs to pre-render at build time
 export async function generateStaticParams() {
@@ -91,7 +92,11 @@ export default async function PostPage({ params }: { params: { slug: string }}) 
                         <div className="mt-12 pt-6 border-t">
                           <h3 className="text-lg font-semibold mb-2">Tags:</h3>
                           <div className="flex flex-wrap gap-2">
-                            {post.tags.map((tag) => (<Badge key={tag} variant="secondary">{tag}</Badge>))}
+                            {post.tags.map((tag) => (
+                                <Link key={tag} href={`/tags/${encodeURIComponent(tag)}`}>
+                                    <Badge variant="secondary" className="hover:bg-primary/20 transition-colors">{tag}</Badge>
+                                </Link>
+                            ))}
                           </div>
                         </div>
                       )}

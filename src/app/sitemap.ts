@@ -36,8 +36,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/all-posts`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
   ];
 
-  // Dynamic pages: Posts
   const posts = await getDocuments<Post>('posts', { where: [['status', '==', 'published']] });
+
+  // Dynamic pages: Posts
   const postRoutes = posts.map(post => ({
     url: `${BASE_URL}/posts/${post.slug}`,
     lastModified: post.date ? new Date(post.date) : new Date(),
@@ -56,6 +57,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  // Dynamic pages: Tags
+  const allTags = new Set<string>();
+  posts.forEach(post => {
+    post.tags?.forEach(tag => allTags.add(tag));
+  });
 
-  return [...staticRoutes, ...postRoutes, ...categoryRoutes];
+  const tagRoutes = Array.from(allTags).map(tag => ({
+    url: `${BASE_URL}/tags/${encodeURIComponent(tag)}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
+    priority: 0.6,
+  }));
+
+
+  return [...staticRoutes, ...postRoutes, ...categoryRoutes, ...tagRoutes];
 }
