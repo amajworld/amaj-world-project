@@ -110,8 +110,8 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (html:
 export default function PostEditor({ initialPost }: { initialPost: Partial<Post> | null }) {
   const router = useRouter();
   
-  const [post, setPost] = useState<Partial<Post>>(initialPost || {});
-  const [isLoading, setIsLoading] = useState(false);
+  const [post, setPost] = useState<Partial<Post>>({});
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [scheduleDate, setScheduleDate] = useState<Date | undefined>(undefined);
   const [scheduleTime, setScheduleTime] = useState('10:00');
@@ -124,7 +124,8 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
             const date = new Date(initialPost.scheduledAt);
             setScheduleDate(date);
             setScheduleTime(format(date, 'HH:mm'));
-          }
+        }
+        setIsLoading(false);
     } else {
         alert("Post not found!");
         router.push('/admin/posts');
@@ -132,7 +133,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
   }, [initialPost, router]);
 
 
-  const handleInputChange = (field: keyof typeof post, value: any) => {
+  const handleInputChange = (field: keyof Post, value: any) => {
     setPost(prev => ({ ...prev, [field]: value }));
   };
 
@@ -183,7 +184,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
         imageUrl = 'https://placehold.co/600x400.png';
     }
 
-    const finalSlug = post.slug || generateSlug(post.title);
+    const finalSlug = post.slug || generateSlug(post.title || '');
     let scheduledAtISO: string | undefined = undefined;
     if (finalStatus === 'scheduled' && scheduleDate) {
       const [hours, minutes] = scheduleTime.split(':');
@@ -212,7 +213,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       if (post.id) {
         await updateDocument('posts', post.id, postData);
       } else {
-        await addDocument('posts', postData);
+        await addDocument('posts', postData as Post);
       }
       alert(`Post saved successfully! Status: ${finalStatus}`);
       router.push('/admin/posts');
@@ -240,7 +241,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     handleInputChange('tags', newTags);
   };
 
-  if (isLoading || !initialPost) {
+  if (isLoading) {
     return <div className="flex justify-center items-center h-64"><Loader2 className="h-12 w-12 animate-spin" /></div>;
   }
 

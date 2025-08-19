@@ -131,8 +131,8 @@ export async function addDocument<T extends object>(collectionName: CollectionNa
         if (collectionName === 'posts') {
             const posts = await readPostsFile();
             const newId = Date.now().toString() + Math.random().toString(36).substring(2, 9);
-            const newPost = { ...data, id: newId };
-            posts.push(newPost as Post);
+            const newPostWithId = { ...data, id: newId };
+            posts.push(newPostWithId as Post);
             await writePostsFile(posts);
             return newId;
         }
