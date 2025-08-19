@@ -7,7 +7,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL
   ? process.env.NEXT_PUBLIC_SITE_URL
   : process.env.VERCEL_URL 
     ? `https://${process.env.VERCEL_URL}` 
-    : 'https://amajworld.vercel.app';
+    : 'https://amajworlds.vercel.app';
 
 
 function getCategoryPaths(menuItems: MenuItem[]): string[] {
