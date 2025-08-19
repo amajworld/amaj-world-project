@@ -198,11 +198,12 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       if (post.id) {
         await updateDocument('posts', post.id, postToSave);
       } else {
-        const newPostData = { ...postToSave, date: new Date().toISOString() };
+        const newPostData = { ...postToSave, date: new Date().toISOString(), views: 0 };
         await addDocument('posts', newPostData);
       }
       alert(`Post saved successfully! Status: ${finalStatus}`);
       router.push('/admin/posts');
+      router.refresh();
     } catch (error) {
       console.error('Failed to save post:', error);
       alert('Error saving post.');
@@ -352,6 +353,3 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     </div>
   );
 }
-
-    
-    
