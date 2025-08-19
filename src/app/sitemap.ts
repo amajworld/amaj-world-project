@@ -3,7 +3,7 @@ import type { Post } from '@/data/posts';
 import type { MenuItem } from '@/app/admin/menu/page';
 import type { MetadataRoute } from 'next';
 
-const BASE_URL = process.env.SITE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
 function getCategoryPaths(menuItems: MenuItem[]): string[] {
     let paths: string[] = [];
