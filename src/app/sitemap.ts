@@ -3,9 +3,12 @@ import type { Post } from '@/data/posts';
 import type { MenuItem } from '@/app/admin/menu/page';
 import type { MetadataRoute } from 'next';
 
-const BASE_URL = process.env.VERCEL_URL 
-  ? `https://${process.env.VERCEL_URL}` 
-  : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL 
+  ? process.env.NEXT_PUBLIC_SITE_URL
+  : process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'https://amajworld.vercel.app';
+
 
 function getCategoryPaths(menuItems: MenuItem[]): string[] {
     let paths: string[] = [];
