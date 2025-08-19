@@ -11,6 +11,7 @@ import Image from 'next/image';
 import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
 import type { MenuItem } from '@/app/admin/menu/page';
 import { menuData as initialMenuData } from '@/data/menu';
+import type { Post } from '@/data/posts';
 
 
 const footerLinkSections = [
@@ -25,25 +26,22 @@ const footerLinkSections = [
     },
 ];
 
-const popularTags = [
-    'Amazon Finds', 'Best Products', 'Must Haves', 'Trending Deals',
-    'Cool Gadgets', 'Home Essentials', 'Beauty Picks', 'Fashion Finds',
-];
-
 export default function SiteFooter() {
     const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
     const [settings, setSettings] = useState<SiteSettings | null>(null);
     const [menuData, setMenuData] = useState<MenuItem[]>([]);
+    const [popularTags, setPopularTags] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
             try {
-                const [links, siteSettings, menu] = await Promise.all([
+                const [links, siteSettings, menu, posts] = await Promise.all([
                     getDocuments<SocialLink>('socialLinks'),
                     getDocument<SiteSettings>('site-data', 'settings'),
-                    getDocument<{ data: MenuItem[] }>('site-data', 'menu')
+                    getDocument<{ data: MenuItem[] }>('site-data', 'menu'),
+                    getDocuments<Post>('posts', { where: [['status', '==', 'published']] })
                 ]);
 
                 setSocialLinks(links);
@@ -53,6 +51,18 @@ export default function SiteFooter() {
                 } else {
                     setMenuData(initialMenuData as MenuItem[]);
                 }
+                
+                // Calculate popular tags
+                const tagCounts: { [key: string]: number } = {};
+                posts.forEach(post => {
+                    post.tags?.forEach(tag => {
+                        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                    });
+                });
+                
+                const sortedTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b] - tagCounts[a]);
+                setPopularTags(sortedTags.slice(0, 8));
+
             } catch (error) {
                 console.error("Failed to fetch footer data from Firestore", error);
                 setMenuData(initialMenuData as MenuItem[]);
