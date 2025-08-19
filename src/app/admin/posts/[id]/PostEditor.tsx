@@ -170,7 +170,6 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     if (isPublishOrSchedule) {
         finalStatus = post.status === 'scheduled' ? 'scheduled' : 'published';
     } else {
-        // If just saving, and status isn't set, it's a draft
         if (!post.status) finalStatus = 'draft';
     }
 
@@ -199,8 +198,6 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       scheduledAtISO = finalScheduleDate.toISOString();
     }
     
-    // This is the data object that will be saved to Firestore.
-    // It omits the 'id' because that's handled by the collection, not the document data.
     const postData: Omit<Post, 'id'> = {
         title: post.title,
         slug: finalSlug,
@@ -218,10 +215,8 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
 
     try {
       if (post.id) {
-        // This is an existing post, so update it.
         await updateDocument('posts', post.id, postData);
       } else {
-        // This is a new post, so add it.
         await addDocument('posts', postData);
       }
       alert(`Post saved successfully! Status: ${finalStatus}`);
