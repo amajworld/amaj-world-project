@@ -8,14 +8,16 @@ let adminAuth: admin.auth.Auth | null = null;
 const hasFirebaseEnvVars = 
     process.env.FIREBASE_PROJECT_ID &&
     process.env.FIREBASE_CLIENT_EMAIL &&
-    process.env.FIREBASE_PRIVATE_KEY;
+    (process.env.FIREBASE_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY_B64);
 
 // We will only initialize Firebase if the environment variables are present.
-// The serviceAccountKey.json file is no longer used.
 if (hasFirebaseEnvVars && !admin.apps.length) {
   try {
-    // The private key needs to have its newlines properly escaped when stored as an env var.
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY!.replace(/\\n/g, '\n');
+    // The private key can be provided directly or as a Base64 encoded string.
+    // Base64 is preferred for environments that have issues with newlines in variables.
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY_B64
+      ? Buffer.from(process.env.FIREBASE_PRIVATE_KEY_B64, 'base64').toString('utf-8')
+      : process.env.FIREBASE_PRIVATE_KEY!.replace(/\\n/g, '\n');
     
     admin.initializeApp({
       credential: admin.credential.cert({
