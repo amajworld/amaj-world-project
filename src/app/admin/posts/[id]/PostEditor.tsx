@@ -193,13 +193,31 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       finalScheduleDate.setMinutes(parseInt(minutes, 10));
       scheduledAtISO = finalScheduleDate.toISOString();
     }
-    const postToSave: Partial<Post> = { ...post, slug: finalSlug, imageUrl, status: finalStatus, scheduledAt: scheduledAtISO };
+    
+    // This is the data that will be saved to the database.
+    // It omits the 'id' if it's a new post.
+    const postToSave: Omit<Post, 'id'> = {
+        title: post.title,
+        slug: finalSlug,
+        content: post.content || '',
+        category: post.category,
+        date: post.date || new Date().toISOString(),
+        views: post.views || 0,
+        imageUrl: imageUrl,
+        status: finalStatus || 'draft',
+        seoTitle: post.seoTitle || '',
+        seoDescription: post.seoDescription || '',
+        tags: post.tags || [],
+        scheduledAt: scheduledAtISO,
+    };
+
     try {
       if (post.id) {
+        // Update existing post
         await updateDocument('posts', post.id, postToSave);
       } else {
-        const newPostData = { ...postToSave, date: new Date().toISOString(), views: 0 };
-        await addDocument('posts', newPostData);
+        // Add new post
+        await addDocument('posts', postToSave);
       }
       alert(`Post saved successfully! Status: ${finalStatus}`);
       router.push('/admin/posts');

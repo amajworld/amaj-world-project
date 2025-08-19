@@ -130,7 +130,7 @@ export async function addDocument<T extends object>(collectionName: CollectionNa
     } else {
         if (collectionName === 'posts') {
             const posts = await readPostsFile();
-            const newId = Date.now().toString();
+            const newId = Date.now().toString() + Math.random().toString(36).substring(2, 9);
             const newPost = { ...data, id: newId };
             posts.push(newPost as Post);
             await writePostsFile(posts);
@@ -236,8 +236,8 @@ export async function getPaginatedDocuments<T>(
             filteredPosts.sort((a, b) => {
                 const aValue = a[orderBy[0]];
                 const bValue = b[orderBy[0]];
-                if (aVal < bVal) return orderBy[1] === 'asc' ? -1 : 1;
-                if (aVal > bVal) return orderBy[1] === 'asc' ? 1 : -1;
+                if (aValue < bValue) return orderBy[1] === 'asc' ? -1 : 1;
+                if (aValue > bValue) return orderBy[1] === 'asc' ? 1 : -1;
                 return 0;
             });
         }
