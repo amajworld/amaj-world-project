@@ -228,14 +228,15 @@ export async function getPaginatedDocuments<T>(
         let filteredPosts = allPosts;
         if (where) {
             for (const w of where) {
-                filteredPosts = filteredPosts.filter(p => p[w[0]] === w[2]);
+                // This is a simplified filter for local files, assuming '=='
+                 filteredPosts = filteredPosts.filter(p => p[w[0]] === w[2]);
             }
         }
 
         if (orderBy) {
             filteredPosts.sort((a, b) => {
-                const aValue = a[orderBy[0]];
-                const bValue = b[orderBy[0]];
+                const aValue = a[orderBy[0] as keyof Post] || '';
+                const bValue = b[orderBy[0] as keyof Post] || '';
                 if (aValue < bValue) return orderBy[1] === 'asc' ? -1 : 1;
                 if (aValue > bValue) return orderBy[1] === 'asc' ? 1 : -1;
                 return 0;
@@ -248,6 +249,6 @@ export async function getPaginatedDocuments<T>(
         const endIndex = startIndex + limit;
         const documents = filteredPosts.slice(startIndex, endIndex);
         
-        return { documents: documents as T[], totalPages, totalDocs };
+        return { documents: documents as unknown as T[], totalPages, totalDocs };
     }
 }

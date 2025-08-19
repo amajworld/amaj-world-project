@@ -126,7 +126,6 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
             setScheduleTime(format(date, 'HH:mm'));
           }
     } else {
-        // Handle case where post is not found, maybe redirect
         alert("Post not found!");
         router.push('/admin/posts');
     }
@@ -194,9 +193,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       scheduledAtISO = finalScheduleDate.toISOString();
     }
     
-    // This is the data that will be saved to the database.
-    // It omits the 'id' if it's a new post.
-    const postToSave: Omit<Post, 'id'> = {
+    const postData: Omit<Post, 'id'> = {
         title: post.title,
         slug: finalSlug,
         content: post.content || '',
@@ -213,11 +210,9 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
 
     try {
       if (post.id) {
-        // Update existing post
-        await updateDocument('posts', post.id, postToSave);
+        await updateDocument('posts', post.id, postData);
       } else {
-        // Add new post
-        await addDocument('posts', postToSave);
+        await addDocument('posts', postData);
       }
       alert(`Post saved successfully! Status: ${finalStatus}`);
       router.push('/admin/posts');
@@ -237,6 +232,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       handleInputChange('tags', newTags);
       setTagInput('');
     }
+    e?.preventDefault();
   };
 
   const handleTagRemove = (tagToRemove: string) => {
@@ -325,7 +321,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
                     <CardContent className="space-y-4">
                          <div className="space-y-2">
                             <Label htmlFor="post-category">Category</Label>
-                            <select id="post-category" value={post.category} onChange={e => handleInputChange('category', e.target.value)} className="w-full p-2 border rounded-md bg-background">
+                            <select id="post-category" value={post.category || ''} onChange={e => handleInputChange('category', e.target.value)} className="w-full p-2 border rounded-md bg-background">
                                 <option value="" disabled>Select a category</option>
                                 {menuData.filter(item => item.href !== '/').map(mainItem => {
                                     if (mainItem.children && mainItem.children.length > 0) {
