@@ -114,9 +114,13 @@ async function revalidatePostPaths(slug: string, category?: string) {
     revalidatePath('/');
     revalidatePath('/all-posts');
     if (category) {
+        // Revalidate the main category page e.g. /fashion
+        revalidatePath(category.split('/')[1] || category);
+        // Revalidate the sub-category page e.g. /fashion/nail-care-art
         revalidatePath(category);
     }
     revalidatePath(`/posts/${slug}`);
+    console.log(`Revalidated paths for slug: ${slug} and category: ${category}`);
 }
 
 
@@ -163,7 +167,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
 
   const generateSlug = (title: string) => {
     if (!title) return '';
-    return title.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+    return title.toLowerCase().replace(/[^a-z0-9\\s-]/g, '').trim().replace(/\\s+/g, '-').replace(/-+/g, '-');
   };
   
   const handleTitleBlur = () => {
@@ -400,3 +404,5 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     </div>
   );
 }
+
+    
