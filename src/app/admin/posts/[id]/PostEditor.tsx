@@ -198,12 +198,15 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       scheduledAtISO = finalScheduleDate.toISOString();
     }
     
+    // Always set a new date on publish/update to ensure it appears as recent
+    const postDate = new Date().toISOString();
+
     const postData: Omit<Post, 'id' | 'href'> = {
         title: post.title,
         slug: finalSlug,
         content: post.content || '',
         category: post.category,
-        date: post.date || new Date().toISOString(),
+        date: postDate,
         views: post.views || 0,
         imageUrl: imageUrl,
         status: finalStatus,
@@ -229,7 +232,8 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       } else {
           alert(`Post saved as draft!`);
           if (!post.id && savedPostId) {
-             setPost(prev => ({...prev, id: savedPostId}));
+             // Update the current post state with the new ID and date
+             setPost(prev => ({...prev, id: savedPostId, date: postDate}));
              router.replace(`/admin/posts/${savedPostId}`, { scroll: false });
           }
       }
