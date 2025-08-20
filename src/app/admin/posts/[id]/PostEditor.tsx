@@ -204,7 +204,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
         slug: finalSlug,
         content: post.content || '',
         category: post.category,
-        date: new Date().toISOString(),
+        date: post.id ? post.date! : new Date().toISOString(),
         views: post.views || 0,
         imageUrl: imageUrl,
         status: finalStatus,
@@ -228,6 +228,10 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       revalidatePath('/[...category]', 'layout');
       revalidatePath(`/posts/${finalSlug}`);
       revalidatePath('/all-posts');
+      if (post.category) {
+        revalidatePath(post.category);
+      }
+
 
       alert(`Post saved successfully! Status: ${finalStatus}`);
       
@@ -351,7 +355,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
                                         return (<optgroup key={mainItem.href} label={mainItem.label}>{mainItem.children.map(childItem => (<option key={childItem.href} value={childItem.href}>{childItem.label}</option>))}</optgroup>);
                                     }
                                     return (<option key={mainItem.href} value={mainItem.href}>{mainItem.label}</option>);
-                                })}
+                                 })}
                             </select>
                         </div>
                         <div className="space-y-2">
@@ -390,3 +394,5 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     </div>
   );
 }
+
+    
