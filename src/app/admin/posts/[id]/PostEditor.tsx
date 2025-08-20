@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -111,6 +110,7 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (html:
 // Server Action for revalidation
 async function revalidatePostPaths(slug: string, category?: string) {
     'use server';
+    // This is the core of the solution. It tells Vercel to clear the cache.
     revalidatePath('/');
     revalidatePath('/all-posts');
     if (category) {
@@ -383,7 +383,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
                 <Card>
                     <CardHeader>
                         <CardTitle>Featured Image</CardTitle>
-                    </Header>
+                    </CardHeader>
                     <CardContent>
                         <div className="space-y-2">
                             <Label htmlFor="featured-image-url">Image URL</Label>
@@ -404,5 +404,3 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     </div>
   );
 }
-
-    
