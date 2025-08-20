@@ -28,6 +28,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { addDocument, updateDocument } from '@/app/actions/firestoreActions';
+import { revalidatePath } from 'next/cache';
 
 
 const TiptapEditor = ({ content, onChange }: { content: string; onChange: (html: string) => void }) => {
@@ -225,6 +226,12 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
         savedPostId = newId; // Get the new ID after creation
       }
       
+      // Revalidate paths to clear Vercel cache
+      revalidatePath('/');
+      revalidatePath('/[...category]', 'layout');
+      revalidatePath(`/posts/${finalSlug}`);
+      revalidatePath('/all-posts');
+
       if (publishAction === 'publish') {
           alert(`Post saved successfully! Status: ${finalStatus}`);
           router.push('/admin/posts');
@@ -284,8 +291,8 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
                 <Card>
                     <CardHeader><CardTitle>Post Details</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="space-y-2"><Label htmlFor="post-title">Post Title</Label><Input id="post-title" value={post.title} onChange={e => handleInputChange('title', e.target.value)} onBlur={handleTitleBlur} placeholder="Your Awesome Post Title"/></div>
-                        <div className="space-y-2"><Label htmlFor="post-slug">Slug</Label><Input id="post-slug" value={post.slug} onChange={e => handleInputChange('slug', e.target.value)} placeholder="your-awesome-post-title"/></div>
+                        <div className="space-y-2"><Label htmlFor="post-title">Post Title</Label><Input id="post-title" value={post.title || ''} onChange={e => handleInputChange('title', e.target.value)} onBlur={handleTitleBlur} placeholder="Your Awesome Post Title"/></div>
+                        <div className="space-y-2"><Label htmlFor="post-slug">Slug</Label><Input id="post-slug" value={post.slug || ''} onChange={e => handleInputChange('slug', e.target.value)} placeholder="your-awesome-post-title"/></div>
                         <div className="space-y-2"><Label>Post Content</Label><TiptapEditor content={post.content || ''} onChange={handleContentChange} /></div>
                     </CardContent>
                 </Card>
@@ -306,7 +313,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="post-status">Status</Label>
-                            <Select value={post.status} onValueChange={handleStatusChange}>
+                            <Select value={post.status || 'draft'} onValueChange={handleStatusChange}>
                                 <SelectTrigger id="post-status"><SelectValue placeholder="Select status" /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="draft">Draft</SelectItem>
@@ -387,3 +394,5 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     </div>
   );
 }
+
+    
