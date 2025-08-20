@@ -198,8 +198,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       scheduledAtISO = finalScheduleDate.toISOString();
     }
     
-    // Prepare the data, ensuring we don't send the 'id' field for new posts
-    const postData: Omit<Post, 'id'> = {
+    const postData: Omit<Post, 'id' | 'href'> = {
         title: post.title,
         slug: finalSlug,
         content: post.content || '',
@@ -228,18 +227,15 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
           router.push('/admin/posts');
           router.refresh();
       } else {
-          // If we just saved a draft, update the local state with the new ID (if it was a new post)
-          // and stay on the page.
           alert(`Post saved as draft!`);
           if (!post.id && savedPostId) {
              setPost(prev => ({...prev, id: savedPostId}));
-             // Also update the URL to reflect the new ID, so subsequent saves are updates
              router.replace(`/admin/posts/${savedPostId}`, { scroll: false });
           }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save post:', error);
-      alert('Error saving post.');
+      alert(`Error saving post: ${error.message}`);
     } finally {
       setIsSaving(false);
     }
