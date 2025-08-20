@@ -108,6 +108,18 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (html:
 };
 
 
+// Server Action for revalidation
+async function revalidatePostPaths(slug: string, category?: string) {
+    'use server';
+    revalidatePath('/');
+    revalidatePath('/all-posts');
+    if (category) {
+        revalidatePath(category);
+    }
+    revalidatePath(`/posts/${slug}`);
+}
+
+
 export default function PostEditor({ initialPost }: { initialPost: Partial<Post> | null }) {
   const router = useRouter();
   
@@ -224,13 +236,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       }
       
       // Revalidate paths to clear Vercel cache
-      revalidatePath('/');
-      revalidatePath('/[...category]', 'layout');
-      revalidatePath(`/posts/${finalSlug}`);
-      revalidatePath('/all-posts');
-      if (post.category) {
-        revalidatePath(post.category);
-      }
+      await revalidatePostPaths(finalSlug, post.category);
 
 
       alert(`Post saved successfully! Status: ${finalStatus}`);
@@ -373,7 +379,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
                 <Card>
                     <CardHeader>
                         <CardTitle>Featured Image</CardTitle>
-                    </CardHeader>
+                    </Header>
                     <CardContent>
                         <div className="space-y-2">
                             <Label htmlFor="featured-image-url">Image URL</Label>
@@ -394,5 +400,3 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     </div>
   );
 }
-
-    
