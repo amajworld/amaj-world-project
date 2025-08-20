@@ -199,15 +199,12 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       scheduledAtISO = finalScheduleDate.toISOString();
     }
     
-    // Always set a new date on publish/update to ensure it appears as recent
-    const postDate = new Date().toISOString();
-
     const postData: Omit<Post, 'id' | 'href'> = {
         title: post.title,
         slug: finalSlug,
         content: post.content || '',
         category: post.category,
-        date: postDate,
+        date: new Date().toISOString(), // Always update date on save
         views: post.views || 0,
         imageUrl: imageUrl,
         status: finalStatus,
@@ -223,7 +220,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
         await updateDocument('posts', post.id, postData);
       } else {
         const newId = await addDocument('posts', postData);
-        savedPostId = newId; // Get the new ID after creation
+        savedPostId = newId;
       }
       
       // Revalidate paths to clear Vercel cache
@@ -232,15 +229,14 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       revalidatePath(`/posts/${finalSlug}`);
       revalidatePath('/all-posts');
 
+      alert(`Post saved successfully! Status: ${finalStatus}`);
+      
       if (publishAction === 'publish') {
-          alert(`Post saved successfully! Status: ${finalStatus}`);
           router.push('/admin/posts');
           router.refresh();
       } else {
-          alert(`Post saved as draft!`);
           if (!post.id && savedPostId) {
-             // Update the current post state with the new ID and date
-             setPost(prev => ({...prev, id: savedPostId, date: postDate}));
+             setPost(prev => ({...prev, id: savedPostId, date: postData.date}));
              router.replace(`/admin/posts/${savedPostId}`, { scroll: false });
           }
       }
