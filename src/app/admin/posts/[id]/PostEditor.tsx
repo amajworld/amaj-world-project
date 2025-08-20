@@ -159,7 +159,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       }
   };
 
-  const handleSave = async (isPublishOrSchedule: boolean) => {
+  const handleSave = async (publishAction: 'draft' | 'publish') => {
     if (!post.title || !post.category) {
       alert('Title and Category are required.');
       return;
@@ -167,10 +167,10 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     setIsSaving(true);
     
     let finalStatus = post.status || 'draft';
-    if (isPublishOrSchedule) {
-        finalStatus = post.status === 'scheduled' ? 'scheduled' : 'published';
+    if (publishAction === 'publish') {
+      finalStatus = post.status === 'scheduled' ? 'scheduled' : 'published';
     } else {
-        if (!post.status) finalStatus = 'draft';
+      finalStatus = 'draft';
     }
 
     if (finalStatus === 'scheduled' && (!scheduleDate || !scheduleTime)) {
@@ -198,6 +198,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
       scheduledAtISO = finalScheduleDate.toISOString();
     }
     
+    // Prepare the data, ensuring we don't send the 'id' field for new posts
     const postData: Omit<Post, 'id'> = {
         title: post.title,
         slug: finalSlug,
@@ -214,14 +215,28 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     };
 
     try {
+      let savedPostId = post.id;
       if (post.id) {
         await updateDocument('posts', post.id, postData);
       } else {
-        await addDocument('posts', postData);
+        const newId = await addDocument('posts', postData);
+        savedPostId = newId; // Get the new ID after creation
       }
-      alert(`Post saved successfully! Status: ${finalStatus}`);
-      router.push('/admin/posts');
-      router.refresh();
+      
+      if (publishAction === 'publish') {
+          alert(`Post saved successfully! Status: ${finalStatus}`);
+          router.push('/admin/posts');
+          router.refresh();
+      } else {
+          // If we just saved a draft, update the local state with the new ID (if it was a new post)
+          // and stay on the page.
+          alert(`Post saved as draft!`);
+          if (!post.id && savedPostId) {
+             setPost(prev => ({...prev, id: savedPostId}));
+             // Also update the URL to reflect the new ID, so subsequent saves are updates
+             router.replace(`/admin/posts/${savedPostId}`, { scroll: false });
+          }
+      }
     } catch (error) {
       console.error('Failed to save post:', error);
       alert('Error saving post.');
@@ -255,8 +270,8 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
             <Button variant="outline" size="icon" onClick={() => router.back()} disabled={isSaving}><ArrowLeft className="h-4 w-4" /></Button>
             <h1 className="text-2xl font-bold">{post.id ? 'Edit Post' : 'Create New Post'}</h1>
             <div className="flex items-center space-x-2">
-                <Button variant="outline" onClick={() => handleSave(false)} disabled={isSaving}><Save className="mr-2 h-4 w-4" />Save Draft</Button>
-                <Button onClick={() => handleSave(true)} disabled={isSaving}>
+                <Button variant="outline" onClick={() => handleSave('draft')} disabled={isSaving}><Save className="mr-2 h-4 w-4" />Save Draft</Button>
+                <Button onClick={() => handleSave('publish')} disabled={isSaving}>
                   {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   <Send className="mr-2 h-4 w-4" />
                   {post.status === 'scheduled' ? 'Schedule' : 'Publish / Schedule'}
@@ -372,5 +387,3 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     </div>
   );
 }
-
-    
