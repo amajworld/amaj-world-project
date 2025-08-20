@@ -204,7 +204,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
         slug: finalSlug,
         content: post.content || '',
         category: post.category,
-        date: new Date().toISOString(), // Always update date on save
+        date: new Date().toISOString(),
         views: post.views || 0,
         imageUrl: imageUrl,
         status: finalStatus,
