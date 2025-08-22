@@ -11,8 +11,6 @@ import Image from 'next/image';
 import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
 import type { MenuItem } from '@/app/admin/menu/page';
 import { menuData as initialMenuData } from '@/data/menu';
-import type { Post } from '@/data/posts';
-
 
 const footerLinkSections = [
     {
@@ -30,18 +28,16 @@ export default function SiteFooter() {
     const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
     const [settings, setSettings] = useState<SiteSettings | null>(null);
     const [menuData, setMenuData] = useState<MenuItem[]>([]);
-    const [popularTags, setPopularTags] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
             try {
-                const [links, siteSettings, menu, posts] = await Promise.all([
+                const [links, siteSettings, menu] = await Promise.all([
                     getDocuments<SocialLink>('socialLinks'),
                     getDocument<SiteSettings>('site-data', 'settings'),
                     getDocument<{ data: MenuItem[] }>('site-data', 'menu'),
-                    getDocuments<Post>('posts', { where: [['status', '==', 'published']] })
                 ]);
 
                 setSocialLinks(links);
@@ -52,17 +48,6 @@ export default function SiteFooter() {
                     setMenuData(initialMenuData as MenuItem[]);
                 }
                 
-                // Calculate popular tags
-                const tagCounts: { [key: string]: number } = {};
-                posts.forEach(post => {
-                    post.tags?.forEach(tag => {
-                        tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-                    });
-                });
-                
-                const sortedTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b] - tagCounts[a]);
-                setPopularTags(sortedTags.slice(0, 8));
-
             } catch (error) {
                 console.error("Failed to fetch footer data from Firestore", error);
                 setMenuData(initialMenuData as MenuItem[]);
@@ -89,7 +74,7 @@ export default function SiteFooter() {
   return (
     <footer className="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
           <div className="space-y-4 flex flex-col items-center md:items-start text-center md:text-left">
               <Link href="/">
@@ -102,7 +87,7 @@ export default function SiteFooter() {
 
           <div className="text-center md:text-left">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase">Categories</h3>
-            <ul className="mt-4 grid grid-cols-2 gap-y-2 gap-x-4">
+            <ul className="mt-4 space-y-2">
               {menuData.filter(item => item.href !== '/').map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-base text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
@@ -113,19 +98,6 @@ export default function SiteFooter() {
             </ul>
           </div>
           
-          <div className="text-center md:text-left">
-             <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase">Popular Tags</h3>
-             <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2">
-                {popularTags.map(tag => (
-                    <li key={tag}>
-                        <Link href={`/tags/${encodeURIComponent(tag)}`} className="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
-                            {tag}
-                        </Link>
-                    </li>
-                ))}
-            </ul>
-          </div>
-
           <div className="text-center md:text-left">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase">{footerLinkSections[0].title}</h3>
             <ul className="mt-4 space-y-2">
