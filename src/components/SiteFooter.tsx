@@ -131,7 +131,7 @@ export default function SiteFooter() {
             <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
               {isLoading ? <p className="text-sm text-gray-500">Loading tags...</p> : popularTags.length > 0 ? popularTags.map((tag) => (
                 <Link key={tag} href={`/tags/${encodeURIComponent(tag)}`}>
-                    <Badge variant="secondary" className="hover:bg-primary/20 transition-colors">{tag}</Badge>
+                    <Badge variant="secondary" className="hover:bg-primary/20 transition-colors cursor-pointer">{tag}</Badge>
                 </Link>
               )) : <p className="text-sm text-gray-500">No tags yet.</p>}
             </div>
@@ -159,5 +159,3 @@ export default function SiteFooter() {
     </footer>
   );
 }
-
-    
