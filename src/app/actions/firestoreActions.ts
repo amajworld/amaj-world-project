@@ -3,12 +3,12 @@
 
 import { adminDb } from '@/lib/firebaseAdmin';
 import { FieldValue } from 'firebase-admin/firestore';
-import { posts as localPosts } from '@/data/posts.json';
+import localPostsData from '@/data/posts.json';
 import { menuData as localMenu } from '@/data/menu';
-import { socialLinks as localSocialLinks } from '@/data/social-links.json';
-import { heroSlides as localHeroSlides } from '@/data/hero-slides.json';
-import { ads as localAds } from '@/data/ads.json';
-import { siteSettings as localSiteSettings } from '@/data/site-settings.json';
+import localSocialLinks from '@/data/social-links.json';
+import localHeroSlides from '@/data/hero-slides.json';
+import localAds from '@/data/ads.json';
+import localSiteSettings from '@/data/site-settings.json';
 
 // --- TYPE DEFINITIONS ---
 import type { Post } from '@/data/posts';
@@ -49,7 +49,7 @@ export async function getDocuments<T extends {id?: string}>(
     // Local fallback logic
     switch (collectionName) {
         case 'posts':
-            return JSON.parse(JSON.stringify(localPosts)) as T[];
+            return JSON.parse(JSON.stringify(localPostsData.posts)) as T[];
         case 'socialLinks':
             return JSON.parse(JSON.stringify(localSocialLinks)) as T[];
         case 'heroSlides':
@@ -109,7 +109,7 @@ export async function getDocument<T extends object>(collectionName: CollectionNa
         }
     }
     if (collectionName === 'posts') {
-        const post = localPosts.find(p => p.id === documentId);
+        const post = localPostsData.posts.find(p => p.id === documentId);
         return post ? post as T : null;
     }
     return null;
@@ -185,7 +185,7 @@ export async function getPaginatedDocuments<T extends {id?: string}>(
     if (!adminDb) {
         console.warn('Firestore is not connected. Cannot get paginated documents.');
         // Local fallback
-        const filteredPosts = localPosts.filter(p => p.status === 'published');
+        const filteredPosts = localPostsData.posts.filter(p => p.status === 'published');
         const totalDocs = filteredPosts.length;
         const totalPages = Math.ceil(totalDocs / options.limit);
         const documents = filteredPosts.slice((options.page - 1) * options.limit, options.page * options.limit);
