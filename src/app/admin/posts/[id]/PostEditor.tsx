@@ -111,32 +111,24 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (html:
 export default function PostEditor({ initialPost }: { initialPost: Partial<Post> | null }) {
   const router = useRouter();
   
-  const [post, setPost] = useState<Partial<Post>>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [post, setPost] = useState<Partial<Post>>(initialPost || {});
   const [isSaving, setIsSaving] = useState(false);
-  const [scheduleDate, setScheduleDate] = useState<Date | undefined>(undefined);
-  const [scheduleTime, setScheduleTime] = useState('10:00');
+  const [scheduleDate, setScheduleDate] = useState<Date | undefined>(
+    initialPost?.status === 'scheduled' && initialPost.scheduledAt ? new Date(initialPost.scheduledAt) : undefined
+  );
+  const [scheduleTime, setScheduleTime] = useState(
+    initialPost?.status === 'scheduled' && initialPost.scheduledAt ? format(new Date(initialPost.scheduledAt), 'HH:mm') : '10:00'
+  );
   const [tagInput, setTagInput] = useState('');
 
-  useEffect(() => {
-    if(initialPost) {
-        const postData = (initialPost.id === 'new' && !initialPost.date)
-            ? { ...initialPost, date: new Date().toISOString() }
-            : initialPost;
-
-        setPost(postData);
-        if (postData.status === 'scheduled' && postData.scheduledAt) {
-            const date = new Date(postData.scheduledAt);
-            setScheduleDate(date);
-            setScheduleTime(format(date, 'HH:mm'));
-        }
-        setIsLoading(false);
-    } else {
-        alert("Post not found!");
-        router.push('/admin/posts');
-    }
-  }, [initialPost, router]);
-
+  if (!initialPost) {
+    return (
+        <div className="flex flex-col items-center justify-center h-64 gap-4">
+            <p className="text-destructive text-lg">Error: Post data could not be loaded.</p>
+            <Button onClick={() => router.push('/admin/posts')}>Go back to posts list</Button>
+        </div>
+    );
+  }
 
   const handleInputChange = (field: keyof Post, value: any) => {
     setPost(prev => ({ ...prev, [field]: value }));
@@ -231,14 +223,11 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
 
       alert(`Post saved successfully! Status: ${finalStatus}`);
       
-      // If a new post was created, redirect to its edit page
       if (!post.id || post.id === 'new') {
           if(savedPostId) router.push(`/admin/posts/${savedPostId}`);
       } else if (publishAction === 'publish') {
           router.push('/admin/posts');
           router.refresh();
-      } else {
-          // just stay on the page for draft saves of existing posts
       }
 
     } catch (error: any) {
@@ -263,10 +252,6 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     const newTags = post.tags?.filter(tag => tag !== tagToRemove);
     handleInputChange('tags', newTags);
   };
-
-  if (isLoading) {
-    return <div className="flex justify-center items-center h-64"><Loader2 className="h-12 w-12 animate-spin" /></div>;
-  }
 
   return (
     <div className="space-y-6">
