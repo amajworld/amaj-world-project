@@ -28,7 +28,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { addDocument, updateDocument } from '@/app/actions/firestoreActions';
-import { revalidatePath } from 'next/cache';
+import { revalidatePostPaths } from '@/app/actions/revalidateActions';
 
 
 const TiptapEditor = ({ content, onChange }: { content: string; onChange: (html: string) => void }) => {
@@ -106,19 +106,6 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (html:
     </div>
   );
 };
-
-
-// Server Action for revalidation
-async function revalidatePostPaths(slug: string, category?: string) {
-    'use server';
-    revalidatePath('/', 'layout');
-    revalidatePath('/all-posts');
-    if (category) {
-        revalidatePath(category);
-    }
-    revalidatePath(`/posts/${slug}`);
-    console.log(`Revalidated paths for slug: ${slug} and category: ${category}`);
-}
 
 
 export default function PostEditor({ initialPost }: { initialPost: Partial<Post> | null }) {
