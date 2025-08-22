@@ -91,7 +91,7 @@ export default function PostsListPage() {
 
   const filteredPosts = sortedPosts.filter(post =>
     post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    post.category.toLowerCase().includes(searchTerm.toLowerCase())
+    (post.category && post.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getSortIcon = (key: keyof Post) => {
