@@ -2,8 +2,7 @@
 'use server';
 
 // This file is modified to EXCLUSIVELY use local JSON files.
-// Firebase connectivity is bypassed to ensure the app is functional
-// while environment variable issues are resolved.
+// Firebase connectivity is bypassed to ensure the app is functional.
 
 import type { Post } from '@/data/posts';
 import type { MenuItem } from '@/app/admin/menu/page';
@@ -27,7 +26,8 @@ async function readJsonFile<T>(fileName: string): Promise<T[]> {
         return JSON.parse(fileContent);
     } catch (error) {
         if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-            return []; // File doesn't exist, return empty array
+            await writeJsonFile(fileName, []); // Create file if it doesn't exist
+            return [];
         }
         console.error(`Error reading ${fileName}:`, error);
         return [];
@@ -52,7 +52,6 @@ const collections: Record<CollectionName, string> = {
     'ads': 'ads.json'
 };
 
-// Collection types for Firestore
 type CollectionName = 'posts' | 'site-data' | 'socialLinks' | 'heroSlides' | 'ads';
 
 // --- UNIFIED DATA ACCESS FUNCTIONS ---
