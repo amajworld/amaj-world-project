@@ -183,9 +183,16 @@ export async function getPaginatedDocuments<T extends {id?: string}>(
   }
 ): Promise<{ documents: T[]; totalPages: number, totalDocs: number }> {
     if (!adminDb) {
-        console.warn('Firestore is not connected. Cannot get paginated documents.');
+        console.warn('Firestore is not connected. Using local data for pagination.');
         // Local fallback
-        const filteredPosts = localPostsData.filter(p => p.status === 'published');
+        const allPosts = localPostsData as Post[];
+        const filteredPosts = options.where 
+            ? allPosts.filter(p => {
+                const [field, op, value] = options.where![0];
+                return p[field as keyof Post] === value;
+            })
+            : allPosts;
+
         const totalDocs = filteredPosts.length;
         const totalPages = Math.ceil(totalDocs / options.limit);
         const documents = filteredPosts.slice((options.page - 1) * options.limit, options.page * options.limit);
