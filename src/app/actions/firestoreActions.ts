@@ -49,7 +49,7 @@ export async function getDocuments<T extends {id?: string}>(
     // Local fallback logic
     switch (collectionName) {
         case 'posts':
-            return JSON.parse(JSON.stringify(localPostsData.posts)) as T[];
+            return JSON.parse(JSON.stringify(localPostsData)) as T[];
         case 'socialLinks':
             return JSON.parse(JSON.stringify(localSocialLinks)) as T[];
         case 'heroSlides':
@@ -109,7 +109,7 @@ export async function getDocument<T extends object>(collectionName: CollectionNa
         }
     }
     if (collectionName === 'posts') {
-        const post = localPostsData.posts.find(p => p.id === documentId);
+        const post = localPostsData.find(p => p.id === documentId);
         return post ? post as T : null;
     }
     return null;
@@ -185,7 +185,7 @@ export async function getPaginatedDocuments<T extends {id?: string}>(
     if (!adminDb) {
         console.warn('Firestore is not connected. Cannot get paginated documents.');
         // Local fallback
-        const filteredPosts = localPostsData.posts.filter(p => p.status === 'published');
+        const filteredPosts = localPostsData.filter(p => p.status === 'published');
         const totalDocs = filteredPosts.length;
         const totalPages = Math.ceil(totalDocs / options.limit);
         const documents = filteredPosts.slice((options.page - 1) * options.limit, options.page * options.limit);
