@@ -22,11 +22,6 @@ try {
     adminDb = admin.firestore();
     adminAuth = admin.auth();
     isFirebaseConnected = true;
-    console.log('Firebase Admin SDK connected successfully.');
-  } else {
-    console.warn(
-      'Firebase environment variables are not set. App is in a disconnected state. Please set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY.'
-    );
   }
 } catch (error: any) {
   console.error('Firebase Admin SDK initialization error:', error.stack);
