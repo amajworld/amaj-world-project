@@ -89,9 +89,9 @@ export default function SiteFooter() {
   return (
     <footer className="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-8">
           
-          <div className="space-y-4 flex flex-col items-center md:items-start text-center md:text-left md:col-span-1">
+          <div className="space-y-4 flex flex-col items-center md:items-start text-center md:text-left lg:col-span-2">
               <Link href="/">
                 <SiteLogo />
               </Link>
@@ -102,8 +102,8 @@ export default function SiteFooter() {
 
           <div className="text-center md:text-left">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase">Categories</h3>
-            <ul className="mt-4 space-y-2">
-              {menuData.filter(item => item.href !== '/').slice(0, 5).map((link) => ( // Show first 5 categories
+            <ul className="mt-4 grid grid-cols-2 gap-y-2 gap-x-4">
+              {menuData.filter(item => item.href !== '/').slice(0, 6).map((link) => ( // Show first 6 categories
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
                     {link.label}
@@ -115,7 +115,7 @@ export default function SiteFooter() {
           
           <div className="text-center md:text-left">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase">{footerLinkSections[0].title}</h3>
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-4 grid grid-cols-2 gap-y-2 gap-x-4">
             {footerLinkSections[0].links.map((link) => (
                 <li key={link.label}>
                 <Link href={link.href} className="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
@@ -126,7 +126,7 @@ export default function SiteFooter() {
             </ul>
           </div>
 
-          <div className="text-center md:text-left">
+          <div className="text-center md:text-left md:col-span-2 lg:col-span-1">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase">Popular Tags</h3>
             <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
               {isLoading ? <p className="text-sm text-gray-500">Loading tags...</p> : popularTags.length > 0 ? popularTags.map((tag) => (
