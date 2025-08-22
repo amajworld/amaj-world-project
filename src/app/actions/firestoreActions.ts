@@ -1,11 +1,16 @@
 
 'use server';
 
-import { adminDb, isFirebaseConnected } from '@/lib/firebaseAdmin';
+import { adminDb } from '@/lib/firebaseAdmin';
 import { FieldValue } from 'firebase-admin/firestore';
+import { posts as localPosts } from '@/data/posts.json';
+import { menuData as localMenu } from '@/data/menu';
+import { socialLinks as localSocialLinks } from '@/data/social-links.json';
+import { heroSlides as localHeroSlides } from '@/data/hero-slides.json';
+import { ads as localAds } from '@/data/ads.json';
+import { siteSettings as localSiteSettings } from '@/data/site-settings.json';
 
 // --- TYPE DEFINITIONS ---
-// These types should ideally be in their own files, but are here for simplicity.
 import type { Post } from '@/data/posts';
 import type { MenuItem } from '@/app/admin/menu/page';
 import type { SiteSettings } from '@/app/admin/settings/page';
@@ -39,9 +44,26 @@ export async function getDocuments<T extends {id?: string}>(
     limit?: number;
   }
 ): Promise<T[]> {
-  if (!isFirebaseConnected || !adminDb) {
-    console.warn(`Firestore is not connected. Cannot get documents from ${collectionName}.`);
-    return [];
+  if (!adminDb) {
+    console.warn(`Firestore is not connected. Returning local data for ${collectionName}.`);
+    // Local fallback logic
+    switch (collectionName) {
+        case 'posts':
+            return JSON.parse(JSON.stringify(localPosts)) as T[];
+        case 'socialLinks':
+            return JSON.parse(JSON.stringify(localSocialLinks)) as T[];
+        case 'heroSlides':
+            return JSON.parse(JSON.stringify(localHeroSlides)) as T[];
+        case 'ads':
+            return JSON.parse(JSON.stringify(localAds)) as T[];
+        case 'site-data':
+            // This is a bit tricky as site-data can hold different things
+            const menu = { id: 'menu', data: localMenu };
+            const settings = { id: 'settings', ...localSiteSettings };
+            return [menu, settings] as unknown as T[];
+        default:
+            return [];
+    }
   }
 
   try {
@@ -75,8 +97,21 @@ export async function getDocuments<T extends {id?: string}>(
 
 // Generic function to get a single document by ID
 export async function getDocument<T extends object>(collectionName: CollectionName, documentId: string): Promise<T | null> {
-  if (!isFirebaseConnected || !adminDb) {
-    console.warn(`Firestore is not connected. Cannot get document '${documentId}'.`);
+  if (!adminDb) {
+    console.warn(`Firestore is not connected. Returning local data for '${documentId}'.`);
+     // Local fallback logic for specific single documents
+    if (collectionName === 'site-data') {
+        if (documentId === 'menu') {
+            return { data: localMenu } as T;
+        }
+        if (documentId === 'settings') {
+            return localSiteSettings as T;
+        }
+    }
+    if (collectionName === 'posts') {
+        const post = localPosts.find(p => p.id === documentId);
+        return post ? post as T : null;
+    }
     return null;
   }
 
@@ -95,9 +130,9 @@ export async function getDocument<T extends object>(collectionName: CollectionNa
 
 // Generic function to add a document to a collection
 export async function addDocument<T extends object>(collectionName: CollectionName, data: T): Promise<string> {
-    if (!isFirebaseConnected || !adminDb) {
+    if (!adminDb) {
         console.error('Firestore is not connected. Cannot add document.');
-        return '';
+        throw new Error('Database not connected. Cannot add document.');
     }
     try {
         const docRef = await adminDb.collection(collectionName).add(data);
@@ -110,9 +145,9 @@ export async function addDocument<T extends object>(collectionName: CollectionNa
 
 // Generic function to update a document
 export async function updateDocument<T extends object>(collectionName: CollectionName, documentId: string, data: Partial<T>): Promise<void> {
-    if (!isFirebaseConnected || !adminDb) {
+    if (!adminDb) {
         console.error('Firestore is not connected. Cannot update document.');
-        return;
+        throw new Error('Database not connected. Cannot update document.');
     }
     try {
         const docRef = adminDb.collection(collectionName).doc(documentId);
@@ -125,9 +160,9 @@ export async function updateDocument<T extends object>(collectionName: Collectio
 
 // Generic function to delete a document
 export async function deleteDocument(collectionName: CollectionName, documentId: string): Promise<void> {
-    if (!isFirebaseConnected || !adminDb) {
+    if (!adminDb) {
         console.error('Firestore is not connected. Cannot delete document.');
-        return;
+        throw new Error('Database not connected. Cannot delete document.');
     }
     try {
         await adminDb.collection(collectionName).doc(documentId).delete();
@@ -147,9 +182,14 @@ export async function getPaginatedDocuments<T extends {id?: string}>(
     orderBy?: [string, 'asc' | 'desc'];
   }
 ): Promise<{ documents: T[]; totalPages: number, totalDocs: number }> {
-    if (!isFirebaseConnected || !adminDb) {
+    if (!adminDb) {
         console.warn('Firestore is not connected. Cannot get paginated documents.');
-        return { documents: [], totalPages: 0, totalDocs: 0 };
+        // Local fallback
+        const filteredPosts = localPosts.filter(p => p.status === 'published');
+        const totalDocs = filteredPosts.length;
+        const totalPages = Math.ceil(totalDocs / options.limit);
+        const documents = filteredPosts.slice((options.page - 1) * options.limit, options.page * options.limit);
+        return { documents: documents as T[], totalPages, totalDocs };
     }
     
     const { page, limit, where, orderBy } = options;

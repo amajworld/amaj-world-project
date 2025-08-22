@@ -3,18 +3,22 @@
 
 import AdminHeader from "./components/AdminHeader";
 import AdminSidebar from "./components/AdminSidebar";
+import React from 'react';
 
 function AppModeWarning() {
-  const isFirebaseConnected = false; // Hardcoded to false as we are in local mode
+  // This component is being kept to avoid breaking changes, 
+  // but it will not display a message in its current form.
+  // The check for firebase connection has been removed to prevent build errors.
+  const shouldShowWarning = process.env.NEXT_PUBLIC_SHOW_FIREBASE_WARNING === 'true';
 
-  if (isFirebaseConnected) {
+  if (!shouldShowWarning) {
     return null;
   }
 
   return (
-    <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6" role="alert">
-      <p className="font-bold">Local File Mode</p>
-      <p>The application is running in local file mode. Changes will be saved to local JSON files. To deploy changes, commit and sync them via the Source Control panel.</p>
+    <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6" role="alert">
+      <p className="font-bold">Firebase Not Connected</p>
+      <p>The application may be running in a disconnected state. If you see this on your live Vercel site, please add your Firebase environment variables to your Vercel project settings.</p>
     </div>
   );
 }
