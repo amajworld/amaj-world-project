@@ -5,17 +5,22 @@ import { revalidatePath } from 'next/cache';
 
 // Server Action for revalidation
 export async function revalidatePostPaths(slug: string, category?: string) {
-    // Revalidate the home page layout to catch recent posts on sidebars etc.
+    // Revalidate the home page to catch recent posts on sidebars etc.
     revalidatePath('/', 'layout');
     
     // Revalidate the "all posts" page
     revalidatePath('/all-posts');
 
-    // Revalidate the specific category page
+    // Revalidate the specific category page and its parent paths if nested
     if (category) {
-        // The category path might be like "/fashion/womens-fashion"
-        // We revalidate the layout for that path to cover all sub-pages and query params
-        revalidatePath(category, 'layout');
+        // e.g., for category '/fashion/womens-fashion', revalidate both
+        // '/fashion/womens-fashion' and '/fashion'
+        const pathSegments = category.split('/').filter(Boolean);
+        let currentPath = '';
+        for (const segment of pathSegments) {
+            currentPath += `/${segment}`;
+            revalidatePath(currentPath, 'layout');
+        }
     }
 
     // Revalidate the post's own page
@@ -23,5 +28,6 @@ export async function revalidatePostPaths(slug: string, category?: string) {
     
     console.log(`Revalidated paths for slug: ${slug} and category: ${category}`);
 }
+
 
 
