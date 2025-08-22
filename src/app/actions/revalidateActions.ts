@@ -13,6 +13,8 @@ export async function revalidatePostPaths(slug: string, category?: string) {
 
     // Revalidate the specific category page
     if (category) {
+        // The category path might be like "/fashion/womens-fashion"
+        // We revalidate the layout for that path to cover all sub-pages and query params
         revalidatePath(category, 'layout');
     }
 
@@ -21,5 +23,3 @@ export async function revalidatePostPaths(slug: string, category?: string) {
     
     console.log(`Revalidated paths for slug: ${slug} and category: ${category}`);
 }
-
-    

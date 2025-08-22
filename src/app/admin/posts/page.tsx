@@ -16,7 +16,8 @@ import {
   PlusCircle, Edit, Trash2, Search, Loader2, ChevronsUpDown, ArrowUp, ArrowDown
 } from 'lucide-react';
 import type { Post } from '@/data/posts';
-import { getDocuments, deleteDocument } from '@/app/actions/firestoreActions';
+import { deleteDocument, getDocuments } from '@/app/actions/firestoreActions';
+import { revalidatePostPaths } from '@/app/actions/revalidateActions';
 import { format } from 'date-fns';
 
 type SortConfig = {
@@ -47,11 +48,12 @@ export default function PostsListPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (postToDelete: Post) => {
     if (window.confirm('Are you sure you want to delete this post? This cannot be undone.')) {
       try {
-        await deleteDocument('posts', id);
-        setPosts(posts.filter((post) => post.id !== id));
+        await deleteDocument('posts', postToDelete.id);
+        await revalidatePostPaths(postToDelete.slug, postToDelete.category);
+        setPosts(posts.filter((post) => post.id !== postToDelete.id));
       } catch (error) {
         console.error('Failed to delete post:', error);
         alert('Failed to delete post.');
@@ -187,7 +189,7 @@ export default function PostsListPage() {
                         <Button
                           variant="destructive"
                           size="icon"
-                          onClick={() => handleDelete(post.id)}
+                          onClick={() => handleDelete(post)}
                         >
                           <Trash2 className="h-4 w-4" />
                           <span className="sr-only">Delete</span>
