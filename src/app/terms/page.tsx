@@ -1,7 +1,16 @@
 
+'use client';
+
 import { Bot } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function TermsOfServicePage() {
+  const [lastUpdated, setLastUpdated] = useState('');
+
+  useEffect(() => {
+    setLastUpdated(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }));
+  }, []);
+
   return (
     <div className="bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -51,7 +60,7 @@ export default function TermsOfServicePage() {
             <h2>8. Contact Us</h2>
             <p>If you have any questions about these Terms, please contact us through our <a href="/contact">Contact Page</a>.</p>
             
-            <p><em>Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</em></p>
+            <p><em>Last updated: {lastUpdated}</em></p>
         </div>
 
       </div>
