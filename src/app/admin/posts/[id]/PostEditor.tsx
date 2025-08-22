@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react';
+import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
@@ -22,7 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import type { Post } from '@/data/posts';
 import { menuData } from '@/data/menu';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -330,15 +330,28 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
                     <CardContent className="space-y-4">
                          <div className="space-y-2">
                             <Label htmlFor="post-category">Category</Label>
-                            <select id="post-category" value={post.category || ''} onChange={e => handleInputChange('category', e.target.value)} className="w-full p-2 border rounded-md bg-background">
-                                <option value="" disabled>Select a category</option>
-                                {menuData.filter(item => item.href !== '/').map(mainItem => {
-                                    if (mainItem.children && mainItem.children.length > 0) {
-                                        return (<optgroup key={mainItem.href} label={mainItem.label}>{mainItem.children.map(childItem => (<option key={childItem.href} value={childItem.href}>{childItem.label}</option>))}</optgroup>);
-                                    }
-                                    return (<option key={mainItem.href} value={mainItem.href}>{mainItem.label}</option>);
-                                 })}
-                            </select>
+                            <Select value={post.category || ''} onValueChange={(value) => handleInputChange('category', value)}>
+                                <SelectTrigger id="post-category">
+                                    <SelectValue placeholder="Select a category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {menuData.filter(item => item.href !== '/').map(mainItem => {
+                                        if (mainItem.children && mainItem.children.length > 0) {
+                                            return (
+                                                <SelectGroup key={mainItem.href}>
+                                                    <Label className="px-2 py-1.5 text-sm font-semibold">{mainItem.label}</Label>
+                                                    {mainItem.children.map(childItem => (
+                                                        <SelectItem key={childItem.href} value={childItem.href}>{childItem.label}</SelectItem>
+                                                    ))}
+                                                </SelectGroup>
+                                            );
+                                        }
+                                        return (
+                                            <SelectItem key={mainItem.href} value={mainItem.href}>{mainItem.label}</SelectItem>
+                                        );
+                                    })}
+                                </SelectContent>
+                            </Select>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="tag-input">Tags</Label>
@@ -376,3 +389,5 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     </div>
   );
 }
+
+    
