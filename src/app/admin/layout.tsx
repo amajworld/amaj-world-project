@@ -5,8 +5,7 @@ import AdminHeader from "./components/AdminHeader";
 import AdminSidebar from "./components/AdminSidebar";
 import React from 'react';
 
-// This component is being removed as it causes a critical hydration error
-// in the Vercel production environment due to incorrect environment variable handling.
+// This component was causing hydration errors and has been removed.
 // function AppModeWarning() { ... }
 
 export default function AdminLayout({
