@@ -52,6 +52,7 @@ export default function PostsListPage() {
     if (window.confirm('Are you sure you want to delete this post? This cannot be undone.')) {
       try {
         await deleteDocument('posts', postToDelete.id);
+        // Trigger revalidation after deleting
         await revalidatePostPaths(postToDelete.slug, postToDelete.category);
         setPosts(posts.filter((post) => post.id !== postToDelete.id));
       } catch (error) {
