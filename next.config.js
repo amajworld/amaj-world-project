@@ -3,6 +3,15 @@ const nextConfig = {
   /* config options here */
   webpack: (config, { isServer }) => {
     config.experiments = { ...config.experiments, asyncWebAssembly: true };
+    // Этот код гарантирует, что модули, предназначенные только для сервера,
+    // не будут включены в клиентский бандл.
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        net: false,
+        tls: false,
+      };
+    }
     return config;
   },
   experimental: {
