@@ -23,6 +23,3 @@ export async function revalidatePostPaths(slug: string, category?: string) {
     
     console.log(`Revalidated paths for slug: ${slug} and category: ${category}`);
 }
-
-
-
