@@ -8,6 +8,8 @@ export default function TermsOfServicePage() {
   const [lastUpdated, setLastUpdated] = useState('');
 
   useEffect(() => {
+    // This code runs only on the client, after the initial render.
+    // This prevents a hydration mismatch between server and client.
     setLastUpdated(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }));
   }, []);
 
@@ -60,7 +62,7 @@ export default function TermsOfServicePage() {
             <h2>8. Contact Us</h2>
             <p>If you have any questions about these Terms, please contact us through our <a href="/contact">Contact Page</a>.</p>
             
-            <p><em>Last updated: {lastUpdated}</em></p>
+            {lastUpdated && <p><em>Last updated: {lastUpdated}</em></p>}
         </div>
 
       </div>

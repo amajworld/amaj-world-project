@@ -31,8 +31,10 @@ export default function PostsListPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<SortConfig | null>({ key: 'date', direction: 'descending' });
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     fetchPosts();
   }, []);
 
@@ -176,7 +178,7 @@ export default function PostsListPage() {
                       </TableCell>
                       <TableCell>{post.category}</TableCell>
                       <TableCell>
-                        {format(new Date(post.date), 'PPP')}
+                        {isClient ? format(new Date(post.date), 'PPP') : ''}
                       </TableCell>
                       <TableCell className="text-right space-x-2">
                         <Button
