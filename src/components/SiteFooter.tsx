@@ -11,6 +11,8 @@ import Image from 'next/image';
 import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
 import type { MenuItem } from '@/app/admin/menu/page';
 import { menuData as initialMenuData } from '@/data/menu';
+import type { Post } from '@/data/posts';
+import { Badge } from './ui/badge';
 
 const footerLinkSections = [
     {
@@ -28,26 +30,39 @@ export default function SiteFooter() {
     const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
     const [settings, setSettings] = useState<SiteSettings | null>(null);
     const [menuData, setMenuData] = useState<MenuItem[]>([]);
+    const [popularTags, setPopularTags] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
             try {
-                const [links, siteSettings, menu] = await Promise.all([
+                const [links, siteSettings, menu, posts] = await Promise.all([
                     getDocuments<SocialLink>('socialLinks'),
                     getDocument<SiteSettings>('site-data', 'settings'),
                     getDocument<{ data: MenuItem[] }>('site-data', 'menu'),
+                    getDocuments<Post>('posts', { where: [['status', '==', 'published']] }),
                 ]);
 
                 setSocialLinks(links);
                 setSettings(siteSettings);
+                
                 if (menu?.data && menu.data.length > 0) {
                     setMenuData(menu.data);
                 } else {
                     setMenuData(initialMenuData as MenuItem[]);
                 }
                 
+                // Calculate popular tags
+                const allTags = posts.flatMap(p => p.tags || []);
+                const tagCounts = allTags.reduce((acc, tag) => {
+                    acc[tag] = (acc[tag] || 0) + 1;
+                    return acc;
+                }, {} as Record<string, number>);
+
+                const sortedTags = Object.keys(tagCounts).sort((a, b) => tagCounts[b] - tagCounts[a]);
+                setPopularTags(sortedTags.slice(0, 10)); // Show top 10 tags
+
             } catch (error) {
                 console.error("Failed to fetch footer data from Firestore", error);
                 setMenuData(initialMenuData as MenuItem[]);
@@ -74,9 +89,9 @@ export default function SiteFooter() {
   return (
     <footer className="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           
-          <div className="space-y-4 flex flex-col items-center md:items-start text-center md:text-left">
+          <div className="space-y-4 flex flex-col items-center md:items-start text-center md:text-left md:col-span-1">
               <Link href="/">
                 <SiteLogo />
               </Link>
@@ -88,9 +103,9 @@ export default function SiteFooter() {
           <div className="text-center md:text-left">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase">Categories</h3>
             <ul className="mt-4 space-y-2">
-              {menuData.filter(item => item.href !== '/').map((link) => (
+              {menuData.filter(item => item.href !== '/').slice(0, 5).map((link) => ( // Show first 5 categories
                 <li key={link.href}>
-                  <Link href={link.href} className="text-base text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
+                  <Link href={link.href} className="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
                     {link.label}
                   </Link>
                 </li>
@@ -109,6 +124,17 @@ export default function SiteFooter() {
                 </li>
             ))}
             </ul>
+          </div>
+
+          <div className="text-center md:text-left">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase">Popular Tags</h3>
+            <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
+              {popularTags.length > 0 ? popularTags.map((tag) => (
+                <Link key={tag} href={`/tags/${encodeURIComponent(tag)}`}>
+                    <Badge variant="secondary" className="hover:bg-primary/20 transition-colors">{tag}</Badge>
+                </Link>
+              )) : <p className="text-sm text-gray-500">No tags yet.</p>}
+            </div>
           </div>
 
         </div>
