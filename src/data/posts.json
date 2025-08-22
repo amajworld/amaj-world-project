@@ -35,44 +35,5 @@
     "views": 180,
     "date": "2025-08-16T17:55:51.138Z",
     "id": "1755366949480"
-  },
-  {
-    "id": "1",
-    "slug": "ultimate-guide-to-nail-care",
-    "title": "The Ultimate Guide to Nail Care & Art in 2024",
-    "imageUrl": "https://placehold.co/600x400.png",
-    "category": "/fashion/nail-care-art",
-    "date": "2024-07-15T10:00:00.000Z",
-    "status": "published",
-    "content": "<h1>Welcome to the Nail Care Guide</h1><p>This is where the full blog post content would go. You can use headings, paragraphs, lists, and more.</p>",
-    "dataAiHint": "nail art",
-    "seoTitle": "Ultimate Guide to Nail Care & Art 2024 | Amaj World",
-    "seoDescription": "Discover the best tips, tricks, and trends for nail care and nail art in 2024. Get healthy, beautiful nails today!",
-    "tags": [
-      "Nail Care",
-      "Nail Art",
-      "Manicure",
-      "Beauty"
-    ],
-    "views": 150
-  },
-  {
-    "id": "2",
-    "slug": "summer-fashion-trends-2024",
-    "title": "Summer Fashion Trends You Need to Know",
-    "imageUrl": "https://placehold.co/600x400.png",
-    "category": "/fashion/womens-fashion",
-    "date": "2024-07-14T10:00:00.000Z",
-    "status": "published",
-    "content": "<p>Content for summer fashion trends.</p>",
-    "dataAiHint": "summer fashion",
-    "seoTitle": "Summer Fashion Trends 2024",
-    "seoDescription": "Explore the top summer fashion trends for 2024.",
-    "tags": [
-      "Summer",
-      "Fashion",
-      "Trends"
-    ],
-    "views": 250
   }
 ]
