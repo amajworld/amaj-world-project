@@ -38,11 +38,11 @@ async function PostsGrid({ currentPage }: { currentPage: number }) {
         where: [['status', '==', 'published']],
     });
 
-    const shuffledPosts = allPublishedPosts.sort(() => 0.5 - Math.random());
+    const sortedPosts = allPublishedPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     
-    const initialPosts = shuffledPosts.slice(0, POSTS_PER_PAGE_INITIAL);
+    const initialPosts = sortedPosts.slice(0, POSTS_PER_PAGE_INITIAL);
     
-    const remainingPosts = shuffledPosts.slice(POSTS_PER_PAGE_INITIAL);
+    const remainingPosts = sortedPosts.slice(POSTS_PER_PAGE_INITIAL);
     const totalPages = Math.ceil(remainingPosts.length / POSTS_PER_PAGE_SECONDARY) + 1;
 
     const paginatedPosts = remainingPosts.slice(
