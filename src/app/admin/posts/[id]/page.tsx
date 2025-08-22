@@ -1,20 +1,20 @@
 
 'use server';
 
-import { getDocument, getDocuments } from '@/app/actions/firestoreActions';
+import { getDocument } from '@/app/actions/firestoreActions';
 import type { Post } from '@/data/posts';
 import PostEditor from './PostEditor';
 
-// This function tells Next.js which post IDs to pre-render at build time
-export async function generateStaticParams() {
-  const posts = await getDocuments<Post>('posts');
-  const paths = posts.map((post) => ({
-    id: post.id,
-  }));
+// This function was causing build failures on Vercel and is not needed for a dynamic site.
+// export async function generateStaticParams() {
+//   const posts = await getDocuments<Post>('posts');
+//   const paths = posts.map((post) => ({
+//     id: post.id,
+//   }));
 
-  // Also include the 'new' path for creating a new post
-  return [...paths, { id: 'new' }];
-}
+//   // Also include the 'new' path for creating a new post
+//   return [...paths, { id: 'new' }];
+// }
 
 async function getPostData(id: string): Promise<Partial<Post> | null> {
     if (id === 'new') {
