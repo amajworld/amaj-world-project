@@ -8,7 +8,7 @@
     "status": "published",
     "seoTitle": "",
     "seoDescription": "",
-    "tags": [],
+    "tags": ["Gadgets", "Audio"],
     "views": 0,
     "date": "2025-08-16T17:59:37.523Z",
     "id": "1755367175588"
@@ -22,7 +22,7 @@
     "status": "published",
     "seoTitle": "",
     "seoDescription": "",
-    "tags": [],
+    "tags": ["Home", "Kitchen", "Gadgets"],
     "views": 0,
     "date": "2025-08-16T17:55:51.138Z",
     "id": "1755366949480"
@@ -43,7 +43,7 @@
     "tags": [
       "Nail Care",
       "Nail Art",
-      "Manicure"
+      "Beauty"
     ],
     "views": 150
   },
@@ -78,7 +78,7 @@
     "status": "published",
     "seoTitle": "",
     "seoDescription": "",
-    "tags": [],
+    "tags": ["Blogging", "Fashion"],
     "id": "175570875265131almor"
   },
   {
@@ -106,7 +106,7 @@
     "status": "published",
     "seoTitle": "",
     "seoDescription": "",
-    "tags": [],
+    "tags": ["Fashion", "Fitness"],
     "id": "17558563514668wgtdfg"
   },
   {
@@ -124,3 +124,5 @@
     "id": "17558575813493k2rlty"
   }
 ]
+
+    

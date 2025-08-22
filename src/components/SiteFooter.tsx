@@ -129,7 +129,7 @@ export default function SiteFooter() {
           <div className="text-center md:text-left">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase">Popular Tags</h3>
             <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
-              {popularTags.length > 0 ? popularTags.map((tag) => (
+              {isLoading ? <p className="text-sm text-gray-500">Loading tags...</p> : popularTags.length > 0 ? popularTags.map((tag) => (
                 <Link key={tag} href={`/tags/${encodeURIComponent(tag)}`}>
                     <Badge variant="secondary" className="hover:bg-primary/20 transition-colors">{tag}</Badge>
                 </Link>
@@ -159,3 +159,5 @@ export default function SiteFooter() {
     </footer>
   );
 }
+
+    
