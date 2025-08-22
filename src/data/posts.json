@@ -44,6 +44,7 @@
     "tags": [
       "Nail Care",
       "Nail Art",
+      "Manicure",
       "Beauty"
     ],
     "views": 150
@@ -79,7 +80,7 @@
     "status": "published",
     "seoTitle": "",
     "seoDescription": "",
-    "tags": ["Blogging", "Fashion", "Tutorial"],
+    "tags": ["Blogging", "Fashion", "Tutorial", "Trends"],
     "id": "175570875265131almor"
   },
   {
@@ -93,7 +94,7 @@
     "status": "published",
     "seoTitle": "",
     "seoDescription": "",
-    "tags": ["Home", "Review", "Kitchen"],
+    "tags": ["Home", "Review", "Kitchen", "Fashion"],
     "id": "1755853414864a8tlhr6"
   },
   {
@@ -107,7 +108,7 @@
     "status": "published",
     "seoTitle": "",
     "seoDescription": "",
-    "tags": ["Fashion", "Fitness", "Workout"],
+    "tags": ["Fashion", "Fitness", "Workout", "Summer"],
     "id": "17558563514668wgtdfg"
   },
   {
@@ -121,7 +122,7 @@
     "status": "published",
     "seoTitle": "",
     "seoDescription": "",
-    "tags": ["Beauty", "Review", "Skincare"],
+    "tags": ["Beauty", "Review", "Skincare", "Nail Care"],
     "id": "17558575813493k2rlty"
   }
 ]
