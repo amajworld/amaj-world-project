@@ -68,10 +68,6 @@ export async function generateMetadata(
 
 
 async function getCategoryData(category: MenuItem) {
-  const allPosts = await getDocuments<Post>('posts', {
-    where: [['status', '==', 'published']],
-  });
-  
   // This array will hold all hrefs that should be considered for this category page.
   let categoryHrefs: string[];
   const isParentCategory = category.children && category.children.length > 0;
@@ -84,9 +80,13 @@ async function getCategoryData(category: MenuItem) {
     categoryHrefs = [category.href];
   }
   
-  const categoryPosts = allPosts.filter(post => 
-    post.category && categoryHrefs.includes(post.category)
-  );
+  // Fetch posts specifically for the categories needed.
+  const categoryPosts = await getDocuments<Post>('posts', {
+    where: [
+      ['status', '==', 'published'],
+      ['category', 'in', categoryHrefs]
+    ],
+  });
   
   // Sort all posts for this category view by views to get the top ones.
   const topPosts = [...categoryPosts].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, TOP_POSTS_COUNT);

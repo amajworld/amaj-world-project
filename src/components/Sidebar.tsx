@@ -18,14 +18,28 @@ export default function Sidebar() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
+        // Fetch posts sorted by views (descending) and limit to 4
+        // Note: Firestore requires an index for this kind of query.
+        // If an index is not set up, you might sort by date as a fallback.
         const posts = await getDocuments<Post>('posts', {
           where: [['status', '==', 'published']],
-          orderBy: ['date', 'desc'],
+          orderBy: ['views', 'desc'],
           limit: 4
         });
         setPopularPosts(posts);
       } catch (error) {
-        console.error('Failed to load data from Firestore for sidebar', error);
+        console.error('Failed to load data for sidebar, trying fallback sort:', error);
+        // Fallback to sorting by date if sorting by views fails (e.g., no index)
+        try {
+            const posts = await getDocuments<Post>('posts', {
+              where: [['status', '==', 'published']],
+              orderBy: ['date', 'desc'],
+              limit: 4
+            });
+            setPopularPosts(posts);
+        } catch (fallbackError) {
+             console.error('Failed to load data with fallback sort for sidebar', fallbackError);
+        }
       } finally {
         setIsLoading(false);
       }

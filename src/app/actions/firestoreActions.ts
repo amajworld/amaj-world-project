@@ -1,14 +1,10 @@
 
 'use server';
 
-import { adminDb } from '@/lib/firebaseAdmin';
+import { adminDb, isFirebaseConnected } from '@/lib/firebaseAdmin';
 import { FieldValue } from 'firebase-admin/firestore';
-import localPostsData from '@/data/posts.json';
-import { menuData as localMenu } from '@/data/menu';
-import localSocialLinks from '@/data/social-links.json';
-import localHeroSlides from '@/data/hero-slides.json';
-import localAds from '@/data/ads.json';
-import localSiteSettings from '@/data/site-settings.json';
+import { promises as fs } from 'fs';
+import path from 'path';
 
 // --- TYPE DEFINITIONS ---
 import type { Post } from '@/data/posts';
@@ -20,74 +16,109 @@ import type { AdConfig } from '@/app/admin/ads/page';
 
 type CollectionName = 'posts' | 'site-data' | 'socialLinks' | 'heroSlides' | 'ads';
 
-type DocumentType<T extends CollectionName> = T extends 'posts'
-  ? Post
-  : T extends 'site-data'
-  ? { id: string, data?: any } | SiteSettings | SocialLink[]
-  : T extends 'socialLinks'
-  ? SocialLink
-  : T extends 'heroSlides'
-  ? SlideConfig
-  : T extends 'ads'
-  ? AdConfig
-  : never;
+type CollectionTypeMap = {
+    'posts': Post;
+    'site-data': { id: string, data?: any } | SiteSettings | SocialLink[];
+    'socialLinks': SocialLink;
+    'heroSlides': SlideConfig;
+    'ads': AdConfig;
+};
 
+// --- LOCAL DATA HANDLING ---
+
+// A simple in-memory cache to avoid reading files repeatedly within a single request.
+const localCache: { [key: string]: any } = {};
+
+async function readLocalData(collectionName: CollectionName) {
+    if (localCache[collectionName]) {
+        return localCache[collectionName];
+    }
+    const filePath = path.join(process.cwd(), 'src', 'data', `${collectionName}.json`);
+    try {
+        const fileContent = await fs.readFile(filePath, 'utf8');
+        const data = JSON.parse(fileContent);
+        localCache[collectionName] = data;
+        return data;
+    } catch (error) {
+        console.error(`Error reading local data for ${collectionName}:`, error);
+        // Return a default empty state if file doesn't exist or is invalid
+        return collectionName === 'site-data' ? { menu: [], settings: {} } : [];
+    }
+}
+
+async function writeLocalData(collectionName: CollectionName, data: any) {
+    const filePath = path.join(process.cwd(), 'src', 'data', `${collectionName}.json`);
+    try {
+        await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8');
+        // Invalidate cache
+        delete localCache[collectionName];
+    } catch (error) {
+        console.error(`Error writing local data for ${collectionName}:`, error);
+    }
+}
 
 // --- UNIFIED DATA ACCESS FUNCTIONS ---
 
-// Generic function to get all documents from a collection
 export async function getDocuments<T extends {id?: string}>(
   collectionName: CollectionName,
   options?: {
-    where?: [string, FirebaseFirestore.WhereFilterOp, any][];
+    where?: [string | FieldPath, FirebaseFirestore.WhereFilterOp, any][];
     orderBy?: [string, 'asc' | 'desc'];
     limit?: number;
   }
 ): Promise<T[]> {
-  if (!adminDb) {
-    console.warn(`Firestore is not connected. Returning local data for ${collectionName}.`);
+  if (!isFirebaseConnected) {
     // Local fallback logic
-    switch (collectionName) {
-        case 'posts':
-            return JSON.parse(JSON.stringify(localPostsData)) as T[];
-        case 'socialLinks':
-            return JSON.parse(JSON.stringify(localSocialLinks)) as T[];
-        case 'heroSlides':
-            return JSON.parse(JSON.stringify(localHeroSlides)) as T[];
-        case 'ads':
-            return JSON.parse(JSON.stringify(localAds)) as T[];
-        case 'site-data':
-            // This is a bit tricky as site-data can hold different things
-            const menu = { id: 'menu', data: localMenu };
-            const settings = { id: 'settings', ...localSiteSettings };
-            return [menu, settings] as unknown as T[];
-        default:
-            return [];
+    console.warn(`Firestore not connected. Reading from local file: ${collectionName}.json`);
+    let data = await readLocalData(collectionName);
+    
+    // Handle special case for site-data
+    if (collectionName === 'site-data') {
+      const menu = { id: 'menu', data: data.menu || [] };
+      const settings = { id: 'settings', ...(data.settings || {}) };
+      return [menu, settings] as unknown as T[];
     }
+    
+    // Apply local filtering
+    if (options?.where) {
+        for (const [field, op, value] of options.where) {
+            if (op === '==') {
+                data = data.filter((item: any) => item[field as string] === value);
+            } else if (op === 'in') {
+                data = data.filter((item: any) => value.includes(item[field as string]));
+            }
+        }
+    }
+    if (options?.orderBy) {
+        const [field, direction] = options.orderBy;
+        data.sort((a: any, b: any) => {
+            if (a[field] < b[field]) return direction === 'asc' ? -1 : 1;
+            if (a[field] > b[field]) return direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+    if (options?.limit) {
+        data = data.slice(0, options.limit);
+    }
+    return data as T[];
   }
 
   try {
-    let query: FirebaseFirestore.Query = adminDb.collection(collectionName);
+    let query: FirebaseFirestore.Query = adminDb!.collection(collectionName);
 
     if (options?.where) {
       for (const w of options.where) {
         query = query.where(w[0], w[1], w[2]);
       }
     }
-
     if (options?.orderBy) {
       query = query.orderBy(options.orderBy[0], options.orderBy[1]);
     }
-    
     if (options?.limit) {
       query = query.limit(options.limit);
     }
 
     const snapshot = await query.get();
-    if (snapshot.empty) {
-      return [];
-    }
-    
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as T));
   } catch (error) {
     console.error(`Error getting documents from ${collectionName}:`, error);
@@ -95,49 +126,41 @@ export async function getDocuments<T extends {id?: string}>(
   }
 }
 
-// Generic function to get a single document by ID
 export async function getDocument<T extends object>(collectionName: CollectionName, documentId: string): Promise<T | null> {
-  if (!adminDb) {
-    console.warn(`Firestore is not connected. Returning local data for '${documentId}'.`);
-     // Local fallback logic for specific single documents
+  if (!isFirebaseConnected) {
+    console.warn(`Firestore not connected. Reading from local file for doc: ${documentId}`);
+    const data = await readLocalData(collectionName);
     if (collectionName === 'site-data') {
-        if (documentId === 'menu') {
-            return { data: localMenu } as T;
-        }
-        if (documentId === 'settings') {
-            return localSiteSettings as T;
-        }
+        return (data[documentId] ? { id: documentId, ...data[documentId] } : null) as T;
     }
-    if (collectionName === 'posts') {
-        const post = localPostsData.find(p => p.id === documentId);
-        return post ? post as T : null;
-    }
-    return null;
+    const item = data.find((d: any) => d.id === documentId);
+    return item ? (item as T) : null;
   }
 
   try {
-    const docRef = adminDb.collection(collectionName).doc(documentId);
+    const docRef = adminDb!.collection(collectionName).doc(documentId);
     const docSnap = await docRef.get();
-    if (docSnap.exists) {
-      return { id: docSnap.id, ...docSnap.data() } as T;
-    }
-    return null;
+    return docSnap.exists ? ({ id: docSnap.id, ...docSnap.data() } as T) : null;
   } catch (error) {
     console.error(`Error getting document ${documentId} from ${collectionName}:`, error);
     return null;
   }
 }
 
-// Generic function to add a document to a collection
 export async function addDocument<T extends object>(collectionName: CollectionName, data: T): Promise<string> {
-    if (!adminDb) {
-        console.warn('Firestore is not connected. Skipping addDocument. This is not an error in local development.');
-        // In a disconnected state, we can't generate a real ID, so we return a placeholder.
-        // The calling function should handle this gracefully.
-        return `local-${Date.now()}`;
+    if (!isFirebaseConnected) {
+        const newId = `local-${Date.now()}`;
+        const dataWithId = { ...data, id: newId };
+
+        const allData = await readLocalData(collectionName);
+        allData.push(dataWithId);
+        await writeLocalData(collectionName, allData);
+        
+        console.warn(`Firestore not connected. Added document locally to ${collectionName}.json with ID: ${newId}`);
+        return newId;
     }
     try {
-        const docRef = await adminDb.collection(collectionName).add(data);
+        const docRef = await adminDb!.collection(collectionName).add(data);
         return docRef.id;
     } catch (error) {
         console.error(`Error adding document to ${collectionName}:`, error);
@@ -145,14 +168,22 @@ export async function addDocument<T extends object>(collectionName: CollectionNa
     }
 }
 
-// Generic function to update a document
 export async function updateDocument<T extends object>(collectionName: CollectionName, documentId: string, data: Partial<T>): Promise<void> {
-    if (!adminDb) {
-        console.warn(`Firestore is not connected. Skipping updateDocument for ${documentId}. This is not an error in local development.`);
-        return; // Gracefully exit without throwing an error
+    if (!isFirebaseConnected) {
+        let allData = await readLocalData(collectionName);
+        const docIndex = allData.findIndex((doc: any) => doc.id === documentId);
+        
+        if (docIndex !== -1) {
+            allData[docIndex] = { ...allData[docIndex], ...data };
+            await writeLocalData(collectionName, allData);
+            console.warn(`Firestore not connected. Updated document locally in ${collectionName}.json with ID: ${documentId}`);
+        } else {
+            console.warn(`Firestore not connected. Document with ID ${documentId} not found for update.`);
+        }
+        return;
     }
     try {
-        const docRef = adminDb.collection(collectionName).doc(documentId);
+        const docRef = adminDb!.collection(collectionName).doc(documentId);
         await docRef.set(data, { merge: true });
     } catch (error) {
         console.error(`Error updating document ${documentId} in ${collectionName}:`, error);
@@ -160,14 +191,21 @@ export async function updateDocument<T extends object>(collectionName: Collectio
     }
 }
 
-// Generic function to delete a document
 export async function deleteDocument(collectionName: CollectionName, documentId: string): Promise<void> {
-    if (!adminDb) {
-        console.warn(`Firestore is not connected. Skipping deleteDocument for ${documentId}. This is not an error in local development.`);
-        return; // Gracefully exit without throwing an error
+    if (!isFirebaseConnected) {
+        let allData = await readLocalData(collectionName);
+        const updatedData = allData.filter((doc: any) => doc.id !== documentId);
+        
+        if (allData.length !== updatedData.length) {
+            await writeLocalData(collectionName, updatedData);
+            console.warn(`Firestore not connected. Deleted document locally from ${collectionName}.json with ID: ${documentId}`);
+        } else {
+             console.warn(`Firestore not connected. Document with ID ${documentId} not found for deletion.`);
+        }
+        return;
     }
     try {
-        await adminDb.collection(collectionName).doc(documentId).delete();
+        await adminDb!.collection(collectionName).doc(documentId).delete();
     } catch (error) {
         console.error(`Error deleting document ${documentId} from ${collectionName}:`, error);
         throw new Error('Failed to delete document.');
@@ -180,29 +218,31 @@ export async function getPaginatedDocuments<T extends {id?: string}>(
   options: {
     page: number;
     limit: number;
-    where?: [string, '==', any][];
+    where?: [string, FirebaseFirestore.WhereFilterOp, any][];
     orderBy?: [string, 'asc' | 'desc'];
   }
 ): Promise<{ documents: T[]; totalPages: number, totalDocs: number }> {
-    if (!adminDb) {
+    if (!isFirebaseConnected) {
         console.warn('Firestore is not connected. Using local data for pagination.');
-        // Local fallback
-        const allPosts = localPostsData as Post[];
-        const filteredPosts = options.where 
-            ? allPosts.filter(p => {
-                const [field, op, value] = options.where![0];
-                return p[field as keyof Post] === value;
-            })
-            : allPosts;
+        let allPosts = await readLocalData('posts');
 
-        const totalDocs = filteredPosts.length;
+        if (options.where) {
+            for (const [field, op, value] of options.where) {
+                 if (op === '==') {
+                    allPosts = allPosts.filter((p: any) => p[field as string] === value);
+                 }
+            }
+        }
+        
+        const totalDocs = allPosts.length;
         const totalPages = Math.ceil(totalDocs / options.limit);
-        const documents = filteredPosts.slice((options.page - 1) * options.limit, options.page * options.limit);
+        const documents = allPosts.slice((options.page - 1) * options.limit, options.page * options.limit);
+        
         return { documents: documents as T[], totalPages, totalDocs };
     }
     
     const { page, limit, where, orderBy } = options;
-    const collectionRef = adminDb.collection(collectionName);
+    const collectionRef = adminDb!.collection(collectionName);
     
     let queryForTotal = collectionRef as FirebaseFirestore.Query;
      if (where) {
