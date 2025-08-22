@@ -2,20 +2,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
-  
-  webpack: (config, { isServer }) => {
-    config.experiments = { ...config.experiments, asyncWebAssembly: true };
-    // This ensures server-only modules are not included in the client-side bundle.
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        net: false,
-        tls: false,
-        fs: false,
-      };
-    }
-    return config;
-  },
   experimental: {
     serverActions: {
       bodySizeLimit: '4mb', // Increase body size limit for server actions
