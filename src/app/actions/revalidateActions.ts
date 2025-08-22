@@ -19,7 +19,7 @@ export async function revalidatePostPaths(slug: string, category?: string) {
         let currentPath = '';
         for (const segment of pathSegments) {
             currentPath += `/${segment}`;
-            revalidatePath(currentPath, 'layout');
+            revalidatePath(currentPath, 'page'); // Use 'page' for more specific revalidation
         }
     }
 
@@ -28,6 +28,3 @@ export async function revalidatePostPaths(slug: string, category?: string) {
     
     console.log(`Revalidated paths for slug: ${slug} and category: ${category}`);
 }
-
-
-
