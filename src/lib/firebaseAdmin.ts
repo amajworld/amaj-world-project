@@ -5,7 +5,12 @@ let adminAuth: admin.auth.Auth | null = null;
 let isFirebaseConnected = false;
 
 function ensureFirebaseConnected() {
-  if (isFirebaseConnected) return;
+  if (isFirebaseConnected && admin.apps.length > 0) {
+      // If already connected and initialized, ensure exports are set
+      if (!adminDb) adminDb = admin.firestore();
+      if (!adminAuth) adminAuth = admin.auth();
+      return;
+  }
 
   try {
     if (
@@ -23,7 +28,7 @@ function ensureFirebaseConnected() {
         });
       }
       adminDb = admin.firestore();
-      adminAuth = admin.auth();
+      adminAuth = admin.auth(); // Set adminAuth here
       isFirebaseConnected = true;
     } else {
       isFirebaseConnected = false;
