@@ -2,6 +2,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
+  env: {
+    NEXT_PUBLIC_SHOW_FIREBASE_WARNING: process.env.NEXT_PUBLIC_SHOW_FIREBASE_WARNING,
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: '4mb', // Increase body size limit for server actions
