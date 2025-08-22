@@ -176,7 +176,7 @@ export default function PostsListPage() {
                       </TableCell>
                       <TableCell>{post.category}</TableCell>
                       <TableCell>
-                        {format(new Date(post.date), 'PPP')}
+                        {post.date ? new Date(post.date).toLocaleDateString() : ''}
                       </TableCell>
                       <TableCell className="text-right space-x-2">
                         <Button
