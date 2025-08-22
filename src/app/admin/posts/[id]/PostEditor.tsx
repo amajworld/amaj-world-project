@@ -120,7 +120,6 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
 
   useEffect(() => {
     if(initialPost) {
-        // For new posts, set a default date if one doesn't exist
         const postData = (initialPost.id === 'new' && !initialPost.date)
             ? { ...initialPost, date: new Date().toISOString() }
             : initialPost;
@@ -232,15 +231,16 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
 
       alert(`Post saved successfully! Status: ${finalStatus}`);
       
-      if (publishAction === 'publish') {
+      // If a new post was created, redirect to its edit page
+      if (!post.id || post.id === 'new') {
+          if(savedPostId) router.push(`/admin/posts/${savedPostId}`);
+      } else if (publishAction === 'publish') {
           router.push('/admin/posts');
           router.refresh();
       } else {
-          if ((!post.id || post.id === 'new') && savedPostId) {
-             setPost(prev => ({...prev, id: savedPostId, date: postData.date}));
-             router.replace(`/admin/posts/${savedPostId}`, { scroll: false });
-          }
+          // just stay on the page for draft saves of existing posts
       }
+
     } catch (error: any) {
       console.error('Failed to save post:', error);
       alert(`Error saving post: ${error.message}`);
