@@ -102,7 +102,7 @@ export default function SiteFooter() {
 
           <div className="text-center md:text-left">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase">Categories</h3>
-            <ul className="mt-4 grid grid-cols-2 gap-y-2 gap-x-4">
+            <ul className="mt-4 space-y-2">
               {menuData.filter(item => item.href !== '/').slice(0, 6).map((link) => ( // Show first 6 categories
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
@@ -115,7 +115,7 @@ export default function SiteFooter() {
           
           <div className="text-center md:text-left">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white tracking-wider uppercase">{footerLinkSections[0].title}</h3>
-            <ul className="mt-4 grid grid-cols-2 gap-y-2 gap-x-4">
+            <ul className="mt-4 space-y-2">
             {footerLinkSections[0].links.map((link) => (
                 <li key={link.label}>
                 <Link href={link.href} className="text-sm text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400">
