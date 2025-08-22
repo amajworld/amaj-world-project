@@ -6,15 +6,7 @@ import type { Post } from '@/data/posts';
 import PostEditor from './PostEditor';
 
 // This function was causing build failures on Vercel and is not needed for a dynamic site.
-// export async function generateStaticParams() {
-//   const posts = await getDocuments<Post>('posts');
-//   const paths = posts.map((post) => ({
-//     id: post.id,
-//   }));
-
-//   // Also include the 'new' path for creating a new post
-//   return [...paths, { id: 'new' }];
-// }
+// export async function generateStaticParams() { ... }
 
 async function getPostData(id: string): Promise<Partial<Post> | null> {
     if (id === 'new') {
@@ -22,7 +14,7 @@ async function getPostData(id: string): Promise<Partial<Post> | null> {
             id: 'new', // Pass 'new' as id to the editor
             title: '', content: '', imageUrl: '', category: '',
             slug: '', status: 'draft', seoTitle: '', seoDescription: '',
-            tags: [], scheduledAt: undefined, views: 0, date: new Date().toISOString()
+            tags: [], scheduledAt: undefined, views: 0, date: '' // Using empty string to prevent hydration mismatch
         };
     }
     return await getDocument<Post>('posts', id);
