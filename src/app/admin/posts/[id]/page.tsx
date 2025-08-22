@@ -19,6 +19,7 @@ export async function generateStaticParams() {
 async function getPostData(id: string): Promise<Partial<Post> | null> {
     if (id === 'new') {
         return {
+            id: 'new', // Pass 'new' as id to the editor
             title: '', content: '', imageUrl: '', category: '',
             slug: '', status: 'draft', seoTitle: '', seoDescription: '',
             tags: [], scheduledAt: undefined, views: 0, date: new Date().toISOString()
@@ -27,7 +28,7 @@ async function getPostData(id: string): Promise<Partial<Post> | null> {
     return await getDocument<Post>('posts', id);
 }
 
-export default async function PostEditorPage({ params }: { params: { id: string } }) {
+export default async function PostEditorPage({ params }: { params: { id:string } }) {
   const postData = await getPostData(params.id);
 
   if (!postData) {
@@ -36,5 +37,3 @@ export default async function PostEditorPage({ params }: { params: { id: string 
 
   return <PostEditor initialPost={postData} />;
 }
-
-    

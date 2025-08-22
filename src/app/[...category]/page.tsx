@@ -6,8 +6,6 @@ import { notFound } from 'next/navigation';
 import type { Metadata, ResolvingMetadata } from 'next';
 import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
-import PostCard from '@/components/PostCard';
-import Pagination from '@/components/Pagination';
 import Sidebar from '@/components/Sidebar';
 import AdBanner from '@/components/AdBanner';
 import CategoryView from './CategoryView';
@@ -86,6 +84,7 @@ async function getCategoryData(category: MenuItem) {
       ['status', '==', 'published'],
       ['category', 'in', categoryHrefs]
     ],
+    orderBy: ['date', 'desc'],
   });
   
   // Sort all posts for this category view by views to get the top ones.
@@ -96,11 +95,8 @@ async function getCategoryData(category: MenuItem) {
   // The rest of the posts are those not in the top posts list.
   const otherPosts = categoryPosts.filter(p => !topPostIds.has(p.id));
   
-  // Shuffle the remaining posts for variety.
-  const shuffledPosts = otherPosts.sort(() => 0.5 - Math.random());
-  
-  const initialPosts = shuffledPosts.slice(0, POSTS_PER_PAGE_INITIAL);
-  const remainingPosts = shuffledPosts.slice(POSTS_PER_PAGE_INITIAL);
+  const initialPosts = otherPosts.slice(0, POSTS_PER_PAGE_INITIAL);
+  const remainingPosts = otherPosts.slice(POSTS_PER_PAGE_INITIAL);
 
   return { initialPosts, topPosts, remainingPosts };
 }

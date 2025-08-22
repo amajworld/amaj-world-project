@@ -120,9 +120,14 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
 
   useEffect(() => {
     if(initialPost) {
-        setPost(initialPost);
-        if (initialPost.status === 'scheduled' && initialPost.scheduledAt) {
-            const date = new Date(initialPost.scheduledAt);
+        // For new posts, set a default date if one doesn't exist
+        const postData = (initialPost.id === 'new' && !initialPost.date)
+            ? { ...initialPost, date: new Date().toISOString() }
+            : initialPost;
+
+        setPost(postData);
+        if (postData.status === 'scheduled' && postData.scheduledAt) {
+            const date = new Date(postData.scheduledAt);
             setScheduleDate(date);
             setScheduleTime(format(date, 'HH:mm'));
         }
@@ -204,7 +209,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
         slug: finalSlug,
         content: post.content || '',
         category: post.category,
-        date: post.id ? post.date! : new Date().toISOString(),
+        date: post.date || new Date().toISOString(),
         views: post.views || 0,
         imageUrl: imageUrl,
         status: finalStatus,
@@ -216,7 +221,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
 
     try {
       let savedPostId = post.id;
-      if (post.id) {
+      if (post.id && post.id !== 'new') {
         await updateDocument('posts', post.id, postData);
       } else {
         const newId = await addDocument('posts', postData);
@@ -231,7 +236,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
           router.push('/admin/posts');
           router.refresh();
       } else {
-          if (!post.id && savedPostId) {
+          if ((!post.id || post.id === 'new') && savedPostId) {
              setPost(prev => ({...prev, id: savedPostId, date: postData.date}));
              router.replace(`/admin/posts/${savedPostId}`, { scroll: false });
           }
@@ -267,7 +272,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     <div className="space-y-6">
        <div className="flex items-center justify-between">
             <Button variant="outline" size="icon" onClick={() => router.back()} disabled={isSaving}><ArrowLeft className="h-4 w-4" /></Button>
-            <h1 className="text-2xl font-bold">{post.id ? 'Edit Post' : 'Create New Post'}</h1>
+            <h1 className="text-2xl font-bold">{post.id && post.id !== 'new' ? 'Edit Post' : 'Create New Post'}</h1>
             <div className="flex items-center space-x-2">
                 <Button variant="outline" onClick={() => handleSave('draft')} disabled={isSaving}><Save className="mr-2 h-4 w-4" />Save Draft</Button>
                 <Button onClick={() => handleSave('publish')} disabled={isSaving}>
@@ -386,5 +391,3 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     </div>
   );
 }
-
-    

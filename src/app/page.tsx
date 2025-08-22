@@ -3,11 +3,8 @@ import React from 'react';
 import PostCard from '@/components/PostCard';
 import Sidebar from '@/components/Sidebar';
 import Pagination from '@/components/Pagination';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import type { Post } from '@/data/posts';
 import { getDocuments } from '@/app/actions/firestoreActions';
-import { Loader2 } from 'lucide-react';
 import AdBanner from '@/components/AdBanner';
 import HeroSlider from '@/components/HeroSlider';
 import { Suspense } from 'react';
@@ -15,17 +12,16 @@ import { Suspense } from 'react';
 const POSTS_PER_PAGE_INITIAL = 15;
 const POSTS_PER_PAGE_SECONDARY = 18;
 
-
 function PostsLoader({ count }: { count: number }) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: count }).map((_, index) => (
                 <div key={index} className="rounded-lg border bg-card text-card-foreground shadow-sm flex flex-col">
-                    <div className="relative bg-muted" style={{ paddingTop: '133.33%' }}></div>
+                    <div className="relative bg-muted animate-pulse" style={{ paddingTop: '133.33%' }}></div>
                     <div className="p-6 space-y-4">
-                        <div className="h-6 bg-muted rounded w-3/4"></div>
-                        <div className="h-4 bg-muted rounded w-full"></div>
-                        <div className="h-4 bg-muted rounded w-1/2"></div>
+                        <div className="h-6 bg-muted rounded w-3/4 animate-pulse"></div>
+                        <div className="h-4 bg-muted rounded w-full animate-pulse"></div>
+                        <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
                     </div>
                 </div>
             ))}
@@ -36,20 +32,22 @@ function PostsLoader({ count }: { count: number }) {
 async function PostsGrid({ currentPage }: { currentPage: number }) {
     const allPublishedPosts = await getDocuments<Post>('posts', {
         where: [['status', '==', 'published']],
+        orderBy: ['date', 'desc']
     });
-
-    const sortedPosts = allPublishedPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     
-    const initialPosts = sortedPosts.slice(0, POSTS_PER_PAGE_INITIAL);
-    
-    const remainingPosts = sortedPosts.slice(POSTS_PER_PAGE_INITIAL);
+    const initialPosts = allPublishedPosts.slice(0, POSTS_PER_PAGE_INITIAL);
+    const remainingPosts = allPublishedPosts.slice(POSTS_PER_PAGE_INITIAL);
     const totalPages = Math.ceil(remainingPosts.length / POSTS_PER_PAGE_SECONDARY) + 1;
 
-    const paginatedPosts = remainingPosts.slice(
-        (currentPage - 2) * POSTS_PER_PAGE_SECONDARY,
-        (currentPage - 1) * POSTS_PER_PAGE_SECONDARY
-    );
+    // This logic handles pagination for pages after the first one
+    const paginatedPosts = currentPage > 1 
+        ? remainingPosts.slice(
+            (currentPage - 2) * POSTS_PER_PAGE_SECONDARY,
+            (currentPage - 1) * POSTS_PER_PAGE_SECONDARY
+          )
+        : [];
 
+    const postsToShow = currentPage === 1 ? initialPosts : paginatedPosts;
     const noPostsFound = allPublishedPosts.length === 0;
 
     return (
@@ -61,26 +59,14 @@ async function PostsGrid({ currentPage }: { currentPage: number }) {
           </div>
         ) : (
           <>
-            {currentPage === 1 && (
-                <>
-                  {initialPosts.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {initialPosts.map((post) => (
-                          <PostCard key={post.id || post.slug} post={{...post, href:`/posts/${post.slug}`}} />
-                      ))}
-                    </div>
-                  )}
-                </>
+            {postsToShow.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {postsToShow.map((post) => (
+                    <PostCard key={post.id || post.slug} post={{...post, href:`/posts/${post.slug}`}} />
+                ))}
+              </div>
             )}
             
-            {currentPage > 1 && paginatedPosts.length > 0 && (
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {paginatedPosts.map((post) => (
-                        <PostCard key={post.id || post.slug} post={{...post, href:`/posts/${post.slug}`}} />
-                    ))}
-                </div>
-            )}
-
             {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} />}
           </>
         )}
