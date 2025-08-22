@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -110,13 +111,9 @@ const TiptapEditor = ({ content, onChange }: { content: string; onChange: (html:
 // Server Action for revalidation
 async function revalidatePostPaths(slug: string, category?: string) {
     'use server';
-    // This is the core of the solution. It tells Vercel to clear the cache.
-    revalidatePath('/');
+    revalidatePath('/', 'layout');
     revalidatePath('/all-posts');
     if (category) {
-        // Revalidate the main category page e.g. /fashion
-        revalidatePath(category.split('/')[1] || category);
-        // Revalidate the sub-category page e.g. /fashion/nail-care-art
         revalidatePath(category);
     }
     revalidatePath(`/posts/${slug}`);
@@ -239,9 +236,7 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
         savedPostId = newId;
       }
       
-      // Revalidate paths to clear Vercel cache
       await revalidatePostPaths(finalSlug, post.category);
-
 
       alert(`Post saved successfully! Status: ${finalStatus}`);
       
@@ -404,3 +399,5 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     </div>
   );
 }
+
+    
