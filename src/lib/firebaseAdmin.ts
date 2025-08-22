@@ -2,7 +2,6 @@ import admin from 'firebase-admin';
 
 let adminDb: admin.firestore.Firestore | null = null;
 let adminAuth: admin.auth.Auth | null = null;
-let isFirebaseConnected = false;
 
 try {
   if (
@@ -21,7 +20,6 @@ try {
     }
     adminDb = admin.firestore();
     adminAuth = admin.auth();
-    isFirebaseConnected = true;
     console.log('Firebase Admin SDK connected successfully.');
   } else {
     console.warn(
@@ -32,4 +30,4 @@ try {
   console.error('Firebase Admin SDK initialization error:', error.stack);
 }
 
-export { adminDb, adminAuth, isFirebaseConnected };
+export { adminDb, adminAuth };
