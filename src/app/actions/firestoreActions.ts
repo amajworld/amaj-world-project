@@ -1,7 +1,7 @@
 
 'use server';
 
-import { adminDb, isFirebaseConnected } from '@/lib/firebaseAdmin';
+import { adminDb, isFirebaseConnected, ensureFirebaseConnected } from '@/lib/firebaseAdmin';
 import { FieldValue, FieldPath } from 'firebase-admin/firestore';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -34,6 +34,7 @@ export async function getDocuments<T extends {id?: string}>(
     limit?: number;
   }
 ): Promise<T[]> {
+  ensureFirebaseConnected();
   if (!isFirebaseConnected || !adminDb) {
     console.error('Database not connected. Cannot get documents.');
     return [];
@@ -63,6 +64,7 @@ export async function getDocuments<T extends {id?: string}>(
 }
 
 export async function getDocument<T extends object>(collectionName: CollectionName, documentId: string): Promise<T | null> {
+  ensureFirebaseConnected();
   if (!isFirebaseConnected || !adminDb) {
     console.error('Database not connected. Cannot get document.');
     return null;
@@ -79,6 +81,7 @@ export async function getDocument<T extends object>(collectionName: CollectionNa
 }
 
 export async function addDocument<T extends object>(collectionName: CollectionName, data: T): Promise<string> {
+    ensureFirebaseConnected();
     if (!isFirebaseConnected || !adminDb) {
         throw new Error('Database not connected. Cannot add document.');
     }
@@ -92,6 +95,7 @@ export async function addDocument<T extends object>(collectionName: CollectionNa
 }
 
 export async function updateDocument<T extends object>(collectionName: CollectionName, documentId: string, data: Partial<T>): Promise<void> {
+    ensureFirebaseConnected();
     if (!isFirebaseConnected || !adminDb) {
         throw new Error('Database not connected. Cannot update document.');
     }
@@ -105,6 +109,7 @@ export async function updateDocument<T extends object>(collectionName: Collectio
 }
 
 export async function deleteDocument(collectionName: CollectionName, documentId: string): Promise<void> {
+    ensureFirebaseConnected();
     if (!isFirebaseConnected || !adminDb) {
         throw new Error('Database not connected. Cannot delete document.');
     }
@@ -126,6 +131,7 @@ export async function getPaginatedDocuments<T extends {id?: string}>(
     orderBy?: [string, 'asc' | 'desc'];
   }
 ): Promise<{ documents: T[]; totalPages: number, totalDocs: number }> {
+    ensureFirebaseConnected();
     if (!isFirebaseConnected || !adminDb) {
         console.error('Database not connected. Cannot get paginated documents.');
         return { documents: [], totalPages: 0, totalDocs: 0 };
