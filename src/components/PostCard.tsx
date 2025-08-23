@@ -9,8 +9,24 @@ interface PostCardProps {
   post: Post;
 }
 
+// Helper function to safely convert date
+const toDate = (date: any): Date | null => {
+    if (!date) return null;
+    if (date instanceof Date) return date;
+    // Check if it's a Firestore Timestamp-like object
+    if (typeof date === 'object' && date !== null && typeof date.toDate === 'function') {
+        return date.toDate();
+    }
+    // Try creating a new Date from a string or number
+    const parsedDate = new Date(date);
+    if (!isNaN(parsedDate.getTime())) {
+        return parsedDate;
+    }
+    return null;
+}
+
 const PostCard = ({ post }: PostCardProps) => {
-  const postDate = typeof post.date === 'string' ? new Date(post.date) : post.date;
+  const postDate = toDate(post.date);
   
   // A simple function to get category name from path
   const getCategoryName = (path: string) => {
@@ -59,7 +75,7 @@ const PostCard = ({ post }: PostCardProps) => {
       </CardContent>
       <CardFooter>
         <p className="text-xs text-muted-foreground">
-          {format(postDate, 'MMMM d, yyyy')}
+          {postDate ? format(postDate, 'MMMM d, yyyy') : 'No date'}
         </p>
       </CardFooter>
     </Card>

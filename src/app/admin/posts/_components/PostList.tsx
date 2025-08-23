@@ -29,6 +29,23 @@ import { useRouter } from 'next/navigation';
 import { Timestamp } from 'firebase/firestore';
 
 
+// Helper function to safely convert date
+const toDate = (date: any): Date | null => {
+    if (!date) return null;
+    if (date instanceof Date) return date;
+    // Check if it's a Firestore Timestamp-like object
+    if (typeof date === 'object' && date !== null && typeof date.toDate === 'function') {
+        return date.toDate();
+    }
+    // Try creating a new Date from a string or number
+    const parsedDate = new Date(date);
+    if (!isNaN(parsedDate.getTime())) {
+        return parsedDate;
+    }
+    return null;
+}
+
+
 export default function PostList({ posts }: { posts: Post[] }) {
     const router = useRouter();
 
@@ -60,52 +77,55 @@ export default function PostList({ posts }: { posts: Post[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {posts.map((post) => (
-          <TableRow key={post.id}>
-            <TableCell className="hidden sm:table-cell">
-              <Image
-                alt={post.title}
-                className="aspect-square rounded-md object-cover"
-                height="64"
-                src={post.imageUrl || '/placeholder.svg'}
-                width="64"
-              />
-            </TableCell>
-            <TableCell className="font-medium">{post.title}</TableCell>
-            <TableCell>
-              <Badge variant={post.status === 'published' ? 'default' : 'secondary'}>
-                {post.status}
-              </Badge>
-            </TableCell>
-            <TableCell>
-                {post.category?.split('/').filter(Boolean).pop()?.replace(/-/g, ' ')}
-            </TableCell>
-            <TableCell className="hidden md:table-cell">
-               {post.date ? format( (post.date as Timestamp).toDate(), 'MMMM d, yyyy') : 'No date'}
-            </TableCell>
-            <TableCell>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button aria-haspopup="true" size="icon" variant="ghost">
-                    <MoreHorizontal className="h-4 w-4" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem asChild>
-                    <Link href={`/admin/posts/${post.id}/edit`}>
-                        <Edit className="mr-2 h-4 w-4"/> Edit
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleDelete(post)}>
-                    <Trash2 className="mr-2 h-4 w-4 text-destructive"/> Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
-          </TableRow>
-        ))}
+        {posts.map((post) => {
+          const displayDate = toDate(post.date);
+          return (
+            <TableRow key={post.id}>
+                <TableCell className="hidden sm:table-cell">
+                <Image
+                    alt={post.title}
+                    className="aspect-square rounded-md object-cover"
+                    height="64"
+                    src={post.imageUrl || '/placeholder.svg'}
+                    width="64"
+                />
+                </TableCell>
+                <TableCell className="font-medium">{post.title}</TableCell>
+                <TableCell>
+                <Badge variant={post.status === 'published' ? 'default' : 'secondary'}>
+                    {post.status}
+                </Badge>
+                </TableCell>
+                <TableCell>
+                    {post.category?.split('/').filter(Boolean).pop()?.replace(/-/g, ' ')}
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                    {displayDate ? format(displayDate, 'MMMM d, yyyy') : 'No date'}
+                </TableCell>
+                <TableCell>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                    <Button aria-haspopup="true" size="icon" variant="ghost">
+                        <MoreHorizontal className="h-4 w-4" />
+                        <span className="sr-only">Toggle menu</span>
+                    </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                        <Link href={`/admin/posts/${post.id}/edit`}>
+                            <Edit className="mr-2 h-4 w-4"/> Edit
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDelete(post)}>
+                        <Trash2 className="mr-2 h-4 w-4 text-destructive"/> Delete
+                    </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+                </TableCell>
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );
