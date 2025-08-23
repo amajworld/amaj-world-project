@@ -6,7 +6,7 @@ import path from 'path';
 import { revalidatePath } from 'next/cache';
 
 // --- TYPE DEFINITIONS ---
-import type { Post } from '@/data/posts';
+import type { Post } from '@/types/posts';
 
 // --- DATA FILE PATHS ---
 const postsFilePath = path.join(process.cwd(), 'src', 'data', 'posts.json');
