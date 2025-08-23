@@ -4,9 +4,9 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
-import type { MenuItem } from '@/app/admin/menu/page';
-import type { SiteSettings } from '@/app/admin/settings/page';
-import type { SocialLink } from '@/app/admin/social-links/page';
+import type { MenuItem } from '@/types/menu';
+import type { SiteSettings } from '@/types/site-settings';
+import type { SocialLink } from '@/types/social-links';
 import { Facebook, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react';
 
 const iconComponents: { [key: string]: React.ElementType } = {

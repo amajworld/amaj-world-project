@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import type { MenuItem } from '@/app/admin/menu/page';
+import type { MenuItem } from '@/types/menu';
 import { getDocument } from '@/app/actions/firestoreActions';
 import {
   DropdownMenu,
@@ -21,7 +21,7 @@ import {
 import { ChevronDown, Search, Menu as MenuIcon } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import type { SiteSettings } from '@/app/admin/settings/page';
+import type { SiteSettings } from '@/types/site-settings';
 import Image from 'next/image';
 
 const SiteHeader = () => {

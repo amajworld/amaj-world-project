@@ -1,7 +1,7 @@
 
 import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
 import type { Post } from '@/data/posts';
-import type { MenuItem } from '@/app/admin/menu/page';
+import type { MenuItem } from '@/types/menu';
 import type { MetadataRoute } from 'next';
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://amajworlds.vercel.app';
