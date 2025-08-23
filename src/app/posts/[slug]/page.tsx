@@ -11,12 +11,12 @@ import RelatedPosts from '@/components/RelatedPosts';
 import Link from 'next/link';
 
 // This function tells Next.js which slugs to pre-render at build time
-// Removing this function because it's not suitable for a dynamic site fetching from a DB at request time.
-// It was causing build failures and hydration errors on Vercel.
-// export async function generateStaticParams() {
-//   // When using dynamic server, we don't need to pre-render static paths
-//   return [];
-// }
+// It's crucial for Vercel's build process for dynamic routes, even if empty.
+export async function generateStaticParams() {
+  // When using a dynamic server, we don't need to pre-render static paths,
+  // but having this function helps Next.js and Vercel understand the route structure.
+  return [];
+}
 
 async function getPost(slug: string): Promise<Post | null> {
     if (!slug) return null;
