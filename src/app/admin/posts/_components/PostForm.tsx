@@ -26,7 +26,10 @@ import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import TiptapEditor from '@/components/TiptapEditor';
+import dynamic from 'next/dynamic';
+
+const TiptapEditor = dynamic(() => import('@/components/TiptapEditor'), { ssr: false });
+
 
 interface PostFormProps {
   post?: Post;
