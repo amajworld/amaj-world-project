@@ -35,6 +35,16 @@ interface PostFormProps {
   categories: { value: string; label: string }[];
 }
 
+const toDate = (date: any): Date | null => {
+    if (!date) return null;
+    if (date instanceof Date) return date;
+    if (typeof date === 'object' && date !== null && typeof date.toDate === 'function') {
+        return date.toDate();
+    }
+    const parsedDate = new Date(date);
+    return !isNaN(parsedDate.getTime()) ? parsedDate : new Date();
+}
+
 export default function PostForm({ post, categories }: PostFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -54,7 +64,7 @@ export default function PostForm({ post, categories }: PostFormProps) {
     formState: { errors },
   } = useForm<Post>({
     defaultValues: post
-      ? { ...post, date: post.date ? (post.date as Timestamp).toDate() : new Date() }
+      ? { ...post, date: toDate(post.date) }
       : { status: 'draft', date: new Date() },
   });
 
