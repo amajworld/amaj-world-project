@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -144,3 +143,5 @@ const SiteHeader = () => {
     </header>
   );
 };
+
+export default SiteHeader;

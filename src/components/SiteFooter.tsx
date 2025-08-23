@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -112,3 +111,5 @@ const SiteFooter = () => {
     </footer>
   );
 };
+
+export default SiteFooter;
