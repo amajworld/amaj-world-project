@@ -22,8 +22,10 @@ const SiteFooter = () => {
   const [menuData, setMenuData] = useState<MenuItem[]>([]);
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     const fetchFooterData = async () => {
       try {
         const menuDoc = await getDocument<{data: MenuItem[]}>('site-data', 'menu');
@@ -55,9 +57,9 @@ const SiteFooter = () => {
           </div>
 
           {/* Categories */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Categories</h3>
-            {menuData.length > 0 && (
+          {isClient && menuData.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Categories</h3>
               <ul className="space-y-2 text-sm">
                 {menuData.map((item) =>
                   item.href !== '/' ? (
@@ -69,8 +71,8 @@ const SiteFooter = () => {
                   ) : null
                 )}
               </ul>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Information */}
           <div>
@@ -84,21 +86,21 @@ const SiteFooter = () => {
           </div>
 
           {/* Social Media */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
-             {socialLinks.length > 0 && (
-                <div className="flex space-x-4">
-                    {socialLinks.map(link => {
-                        const IconComponent = iconComponents[link.platform];
-                        return IconComponent ? (
-                            <Link key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
-                                <IconComponent size={24} />
-                            </Link>
-                        ) : null;
-                    })}
-                </div>
-            )}
-          </div>
+          {isClient && socialLinks.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
+              <div className="flex space-x-4">
+                  {socialLinks.map(link => {
+                      const IconComponent = iconComponents[link.platform];
+                      return IconComponent ? (
+                          <Link key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
+                              <IconComponent size={24} />
+                          </Link>
+                      ) : null;
+                  })}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-12 pt-8 border-t border-border/50 text-center text-sm">

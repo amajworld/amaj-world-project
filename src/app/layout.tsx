@@ -2,10 +2,8 @@
 import type { Metadata } from "next";
 import { PT_Sans } from "next/font/google";
 import "./globals.css";
-import dynamic from "next/dynamic";
-
-const SiteHeader = dynamic(() => import("@/components/SiteHeader"), { ssr: false });
-const SiteFooter = dynamic(() => import("@/components/SiteFooter"), { ssr: false });
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 
 const ptSans = PT_Sans({
@@ -19,7 +17,7 @@ export const metadata: Metadata = {
   description: "Amazon World – Rebuilding a better experience!",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

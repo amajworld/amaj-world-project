@@ -28,8 +28,10 @@ const SiteHeader = () => {
   const [isSheetOpen, setSheetOpen] = useState(false);
   const [menuData, setMenuData] = useState<MenuItem[]>([]);
   const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     const fetchHeaderData = async () => {
       try {
         const menuDoc = await getDocument<{data: MenuItem[]}>('site-data', 'menu');
@@ -49,9 +51,9 @@ const SiteHeader = () => {
       <div className="container mx-auto flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
           {/* Mobile Menu */}
-          <div className="md:hidden">
-             { menuData.length > 0 && (
-                <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
+          {isClient && menuData.length > 0 && (
+            <div className="md:hidden">
+              <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
                 <SheetTrigger asChild>
                     <Button variant="outline" size="icon">
                     <MenuIcon className="h-6 w-6" />
@@ -83,17 +85,17 @@ const SiteHeader = () => {
                     )}
                     </nav>
                 </SheetContent>
-                </Sheet>
-             ) }
-          </div>
+              </Sheet>
+            </div>
+          )}
 
           <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-primary whitespace-nowrap">
              {settings?.logoUrl && <Image src={settings.logoUrl} alt={settings.siteName || 'Logo'} width={32} height={32} className="h-8 w-8" />}
-            {settings?.siteName || 'Amaj World'}
+            <span>{settings?.siteName || 'Amaj World'}</span>
           </Link>
           
           {/* Desktop Menu */}
-           { menuData.length > 0 && (
+          { isClient && menuData.length > 0 && (
             <nav className="hidden md:flex items-center">
                 <ul className="flex items-center space-x-2">
                 {menuData.map((item) =>
