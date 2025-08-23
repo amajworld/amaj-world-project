@@ -65,11 +65,11 @@ const SiteHeader = () => {
                     <nav className="flex flex-col gap-4 mt-8">
                     {menuData.map((item) =>
                         item.children ? (
-                        <div key={item.label}>
+                        <div key={item.id}>
                             <h3 className="font-semibold px-4 py-2">{item.label}</h3>
                             <div className="flex flex-col pl-4">
                             {item.children.map((child) => (
-                            <SheetClose asChild key={child.label}>
+                            <SheetClose asChild key={child.id}>
                                 <Link href={child.href} className="px-4 py-2 text-muted-foreground hover:text-foreground">
                                 {child.label}
                                 </Link>
@@ -78,7 +78,7 @@ const SiteHeader = () => {
                             </div>
                         </div>
                         ) : (
-                        <SheetClose asChild key={item.label}>
+                        <SheetClose asChild key={item.id}>
                             <Link href={item.href} className="font-semibold px-4 py-2">
                             {item.label}
                             </Link>
@@ -102,7 +102,7 @@ const SiteHeader = () => {
                 <ul className="flex items-center space-x-2">
                 {menuData.map((item) =>
                     item.children ? (
-                    <li key={item.label}>
+                    <li key={item.id}>
                         <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="text-base">
@@ -112,7 +112,7 @@ const SiteHeader = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                             {item.children.map((child) => (
-                            <DropdownMenuItem key={child.label} asChild>
+                            <DropdownMenuItem key={child.id} asChild>
                                 <Link href={child.href}>{child.label}</Link>
                             </DropdownMenuItem>
                             ))}
@@ -120,7 +120,7 @@ const SiteHeader = () => {
                         </DropdownMenu>
                     </li>
                     ) : (
-                    <li key={item.label}>
+                    <li key={item.id}>
                         <Button variant="ghost" asChild className="text-base">
                         <Link href={item.href}>{item.label}</Link>
                         </Button>

@@ -1,5 +1,8 @@
 
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
 import type { MenuItem } from '@/app/admin/menu/page';
 import type { SiteSettings } from '@/app/admin/settings/page';
@@ -16,12 +19,31 @@ const iconComponents: { [key: string]: React.ElementType } = {
 
 
 const SiteFooter = () => {
-  // Data fetching must happen in Server Components (pages or layouts), not in regular components.
-  // For this fix, we are removing the async data fetching to make the component synchronous.
-  // In a real application, this data should be passed down as props from a parent Server Component.
-  const menuData: MenuItem[] = [];
-  const settings: SiteSettings | null = null;
-  const socialLinks: SocialLink[] = [];
+  const [menuData, setMenuData] = useState<MenuItem[]>([]);
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFooterData = async () => {
+      try {
+        const menuDoc = await getDocument<{data: MenuItem[]}>('site-data', 'menu');
+        setMenuData(menuDoc?.data || []);
+
+        const settingsDoc = await getDocument<SiteSettings>('site-data', 'settings');
+        setSettings(settingsDoc);
+        
+        const links = await getDocuments<SocialLink>('socialLinks');
+        setSocialLinks(links);
+
+      } catch (error) {
+        console.error("Failed to fetch footer data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFooterData();
+  }, []);
 
   return (
     <footer className="bg-secondary text-secondary-foreground">
@@ -38,17 +60,19 @@ const SiteFooter = () => {
           {/* Categories */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Categories</h3>
-            <ul className="space-y-2 text-sm">
-              {menuData.map((item) =>
-                item.href !== '/' ? (
-                  <li key={item.label}>
-                    <Link href={item.href} className="hover:underline">
-                      {item.label}
-                    </Link>
-                  </li>
-                ) : null
-              )}
-            </ul>
+            {!loading && (
+              <ul className="space-y-2 text-sm">
+                {menuData.map((item) =>
+                  item.href !== '/' ? (
+                    <li key={item.id}>
+                      <Link href={item.href} className="hover:underline">
+                        {item.label}
+                      </Link>
+                    </li>
+                  ) : null
+                )}
+              </ul>
+            )}
           </div>
 
           {/* Information */}
@@ -65,7 +89,7 @@ const SiteFooter = () => {
           {/* Social Media */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
-             {socialLinks.length > 0 && (
+             {!loading && socialLinks.length > 0 && (
                 <div className="flex space-x-4">
                     {socialLinks.map(link => {
                         const IconComponent = iconComponents[link.platform];
