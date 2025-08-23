@@ -1,7 +1,7 @@
-
 import type { Metadata } from "next";
 import { PT_Sans } from "next/font/google";
 import "./globals.css";
+import SiteHeader from "@/components/SiteHeader";
 
 const ptSans = PT_Sans({
   subsets: ["latin"],
@@ -22,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={ptSans.className}>
+        <SiteHeader />
         <main>{children}</main>
       </body>
     </html>

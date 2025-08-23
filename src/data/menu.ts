@@ -1,9 +1,5 @@
 export const menuData = [
   {
-    label: "Home",
-    href: "/",
-  },
-  {
     label: "Fashion",
     href: "/fashion",
     children: [
