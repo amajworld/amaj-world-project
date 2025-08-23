@@ -39,6 +39,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'myquickurl.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.pravatar.cc',
       }
     ],
   },
