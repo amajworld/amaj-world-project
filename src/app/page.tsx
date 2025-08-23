@@ -3,9 +3,9 @@ import PostCard from '@/components/PostCard';
 import { getDocuments } from '@/app/actions/firestoreActions';
 import type { Post } from '@/data/posts';
 import HeroSlider from '@/components/HeroSlider';
-import type { AdConfig } from './admin/ads/page';
+import type { AdConfig } from '@/types/ads';
 import AdDisplay from '@/components/AdDisplay';
-import type { SlideConfig } from './admin/hero-slider/page';
+import type { SlideConfig } from '@/types/hero-slides';
 
 export default async function Home() {
   const allPosts = await getDocuments<Post>('posts', {

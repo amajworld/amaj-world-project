@@ -10,7 +10,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { type SlideConfig } from "@/app/admin/hero-slider/page";
+import type { SlideConfig } from "@/types/hero-slides";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./ui/button";

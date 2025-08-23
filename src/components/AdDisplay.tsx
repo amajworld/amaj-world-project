@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { AdConfig } from "@/app/admin/ads/page";
+import type { AdConfig } from "@/types/ads";
 import Image from "next/image";
 import Link from "next/link";
 

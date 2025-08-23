@@ -8,7 +8,7 @@ import { Calendar, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import RelatedPosts from '@/components/RelatedPosts';
 import AdDisplay from '@/components/AdDisplay';
-import type { AdConfig } from '@/app/admin/ads/page';
+import type { AdConfig } from '@/types/ads';
 
 export async function generateStaticParams() {
   const posts = await getDocuments<Post>('posts', { where: [['status', '==', 'published']] });
