@@ -13,14 +13,28 @@ import {
 import PostList from './_components/PostList';
 import PaginationControls from '@/components/PaginationControls';
 
-export const revalidate = 0; // Revalidate this page on every request
+export const revalidate = 0; // Revalidate this page on every request to show fresh data
 
-// Helper to safely convert Firestore Timestamps or other date formats to ISO strings
-const toISOStringSafe = (date: any): string | null => {
+// Helper to safely convert Firestore Timestamps or other date formats to a consistent format
+const toDateSafe = (date: any): Date | null => {
     if (!date) return null;
-    if (typeof date === 'string') return date;
-    if (date instanceof Date) return date.toISOString();
-    if (typeof date.toDate === 'function') return date.toDate().toISOString();
+    // Handle ISO string
+    if (typeof date === 'string') {
+        const parsedDate = new Date(date);
+        return isNaN(parsedDate.getTime()) ? null : parsedDate;
+    }
+    // Handle Firestore Timestamp
+    if (typeof date === 'object' && date !== null && typeof date.toDate === 'function') {
+        return date.toDate();
+    }
+     // Handle JS Date
+    if (date instanceof Date) {
+        return date;
+    }
+    // Handle seconds/nanoseconds object
+    if (typeof date === 'object' && date !== null && 'seconds' in date && 'nanoseconds' in date) {
+        return new Date(date.seconds * 1000);
+    }
     return null;
 }
 
@@ -32,16 +46,17 @@ export default async function PostsPage({
   const page = typeof searchParams.page === 'string' ? Number(searchParams.page) : 1;
   const limit = typeof searchParams.limit === 'string' ? Number(searchParams.limit) : 10;
 
+  // This will now primarily read from local JSON files, ensuring build success.
   const { documents, totalPages, totalDocs } = await getPaginatedDocuments<Post>('posts', {
     page,
     limit,
     orderBy: ['date', 'desc'],
   });
 
-  // Convert dates to ISO strings on the server before passing to the client component
+  // Convert dates to a serializable format (Date object) for the client component
   const posts = documents.map(post => ({
     ...post,
-    date: toISOStringSafe(post.date),
+    date: toDateSafe(post.date),
   }));
 
 
@@ -78,3 +93,5 @@ export default async function PostsPage({
     </div>
   );
 }
+
+    

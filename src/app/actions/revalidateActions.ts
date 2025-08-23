@@ -2,38 +2,14 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { isFirebaseConnected } from '@/lib/firebaseAdmin';
 
-// Server Action for revalidation
+// This file is now obsolete as revalidation is handled directly in firestoreActions.ts
+// The functions are kept to prevent breaking imports, but they do nothing.
+
 export async function revalidatePostPaths(slug: string, category?: string) {
-    if (!isFirebaseConnected) {
-        console.log('Firebase not connected, skipping revalidation.');
-        return;
-    }
-
-    try {
-        // Revalidate the home page to catch recent posts and other updates
-        revalidatePath('/', 'layout');
-        
-        // Revalidate the "all posts" page
-        revalidatePath('/all-posts');
-
-        // Revalidate the specific category page
-        if (category) {
-            const pathSegments = category.split('/').filter(Boolean);
-            let currentPath = '';
-            for (const segment of pathSegments) {
-                currentPath += `/${segment}`;
-                revalidatePath(currentPath, 'page');
-            }
-        }
-
-        // Revalidate the post's own page
-        revalidatePath(`/posts/${slug}`);
-        
-        console.log(`Revalidated paths for slug: ${slug}, category: ${category}`);
-    } catch (error) {
-        console.error('Failed to revalidate paths:', error);
-        throw new Error('Failed to revalidate paths.');
-    }
+    console.log('revalidatePostPaths is obsolete. Revalidation is now handled in firestoreActions.');
+    // The new logic in firestoreActions.ts revalidates the whole site layout.
+    // revalidatePath('/', 'layout');
 }
+
+    
