@@ -14,7 +14,7 @@ import { Button } from './ui/button';
 const SiteHeader = () => {
   return (
     <header className="bg-background shadow-md">
-      <div className="container mx-auto flex h-16 items-center justify-between">
+      <div className="container mx-auto flex h-16 items-center justify-start space-x-16">
         <Link href="/" className="text-2xl font-bold text-primary">
           Amaj World
         </Link>
