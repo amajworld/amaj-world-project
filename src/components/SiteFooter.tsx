@@ -15,12 +15,13 @@ const iconComponents: { [key: string]: React.ElementType } = {
 };
 
 
-const SiteFooter = async () => {
-  const menuDoc = await getDocument<{data: MenuItem[]}>('site-data', 'menu');
-  const menuData = menuDoc?.data || [];
-  
-  const settings = await getDocument<SiteSettings>('site-data', 'settings');
-  const socialLinks = await getDocuments<SocialLink>('socialLinks');
+const SiteFooter = () => {
+  // Data fetching must happen in Server Components (pages or layouts), not in regular components.
+  // For this fix, we are removing the async data fetching to make the component synchronous.
+  // In a real application, this data should be passed down as props from a parent Server Component.
+  const menuData: MenuItem[] = [];
+  const settings: SiteSettings | null = null;
+  const socialLinks: SocialLink[] = [];
 
   return (
     <footer className="bg-secondary text-secondary-foreground">

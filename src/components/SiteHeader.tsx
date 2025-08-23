@@ -144,3 +144,5 @@ const SiteHeader = () => {
     </header>
   );
 };
+
+export default SiteHeader;
