@@ -4,7 +4,7 @@ import type { Post } from '@/data/posts';
 import type { MenuItem } from '@/app/admin/menu/page';
 import type { MetadataRoute } from 'next';
 
-const BASE_URL = 'https://amajworlds.vercel.app';
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://amajworlds.vercel.app';
 
 
 function getCategoryPaths(menuItems: MenuItem[]): string[] {
@@ -57,7 +57,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic pages: Tags
   const allTags = new Set<string>();
   posts.forEach(post => {
-    post.tags?.forEach(tag => allTags.add(tag));
+    if (post.tags && Array.isArray(post.tags)) {
+        post.tags.forEach(tag => allTags.add(tag));
+    }
   });
 
   const tagRoutes = Array.from(allTags).map(tag => ({

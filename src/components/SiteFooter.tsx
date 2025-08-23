@@ -26,6 +26,7 @@ const SiteFooter = () => {
 
   useEffect(() => {
     const fetchFooterData = async () => {
+      setLoading(true);
       try {
         const menuDoc = await getDocument<{data: MenuItem[]}>('site-data', 'menu');
         setMenuData(menuDoc?.data || []);
@@ -111,5 +112,3 @@ const SiteFooter = () => {
     </footer>
   );
 };
-
-export default SiteFooter;
