@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -21,7 +22,7 @@ const SiteHeader = () => {
             Amaj World
           </Link>
           <nav>
-            <ul className="flex items-center space-x-4">
+            <ul className="flex items-center space-x-2">
               {menuData.map((item) =>
                 item.children ? (
                   <li key={item.label}>
