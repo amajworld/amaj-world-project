@@ -21,13 +21,13 @@ const SiteHeader = () => {
             Amaj World
           </Link>
           <nav>
-            <ul className="flex items-center space-x-6">
+            <ul className="flex items-center space-x-4">
               {menuData.map((item) =>
                 item.children ? (
                   <li key={item.label}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost">
+                        <Button variant="ghost" className="text-base">
                           {item.label}
                           <ChevronDown className="ml-2 h-4 w-4" />
                         </Button>
@@ -43,7 +43,7 @@ const SiteHeader = () => {
                   </li>
                 ) : (
                   <li key={item.label}>
-                    <Button variant="ghost" asChild>
+                    <Button variant="ghost" asChild className="text-base">
                       <Link href={item.href}>{item.label}</Link>
                     </Button>
                   </li>
