@@ -14,10 +14,19 @@ async function getPostData(id: string): Promise<Partial<Post> | null> {
             id: 'new', // Pass 'new' as id to the editor
             title: '', content: '', imageUrl: '', category: '',
             slug: '', status: 'draft', seoTitle: '', seoDescription: '',
-            tags: [], scheduledAt: undefined, views: 0, date: '' // Using empty string to prevent hydration mismatch
+            tags: [], scheduledAt: undefined, views: 0, date: new Date().toISOString()
         };
     }
-    return await getDocument<Post>('posts', id);
+    const post = await getDocument<Post>('posts', id);
+    if (post) {
+      // Ensure date fields are ISO strings to prevent hydration mismatch
+      return {
+        ...post,
+        date: post.date ? new Date(post.date).toISOString() : new Date().toISOString(),
+        scheduledAt: post.scheduledAt ? new Date(post.scheduledAt).toISOString() : undefined,
+      };
+    }
+    return null;
 }
 
 export default async function PostEditorPage({ params }: { params: { id:string } }) {

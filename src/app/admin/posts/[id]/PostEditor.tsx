@@ -113,12 +113,22 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
   
   const [post, setPost] = useState<Partial<Post>>(initialPost || {});
   const [isSaving, setIsSaving] = useState(false);
+  
   const [scheduleDate, setScheduleDate] = useState<Date | undefined>(
     initialPost?.status === 'scheduled' && initialPost.scheduledAt ? new Date(initialPost.scheduledAt) : undefined
   );
-  const [scheduleTime, setScheduleTime] = useState(
-    initialPost?.status === 'scheduled' && initialPost.scheduledAt ? format(new Date(initialPost.scheduledAt), 'HH:mm') : '10:00'
-  );
+  
+  const [scheduleTime, setScheduleTime] = useState(() => {
+      if (initialPost?.status === 'scheduled' && initialPost.scheduledAt) {
+          try {
+              return format(new Date(initialPost.scheduledAt), 'HH:mm');
+          } catch {
+              return '10:00';
+          }
+      }
+      return '10:00';
+  });
+
   const [tagInput, setTagInput] = useState('');
 
   if (!initialPost) {
@@ -389,5 +399,3 @@ export default function PostEditor({ initialPost }: { initialPost: Partial<Post>
     </div>
   );
 }
-
-    
