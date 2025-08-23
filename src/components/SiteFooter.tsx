@@ -16,8 +16,8 @@ const iconComponents: { [key: string]: React.ElementType } = {
 
 
 const SiteFooter = async () => {
-  const menuDoc = await getDocuments<{id: string, data: MenuItem[]}>('site-data');
-  const menuData = menuDoc.find(m => m.id === 'menu')?.data || [];
+  const menuDoc = await getDocument<{data: MenuItem[]}>('site-data', 'menu');
+  const menuData = menuDoc?.data || [];
   
   const settings = await getDocument<SiteSettings>('site-data', 'settings');
   const socialLinks = await getDocuments<SocialLink>('socialLinks');
@@ -88,4 +88,3 @@ const SiteFooter = async () => {
 };
 
 export default SiteFooter;
-

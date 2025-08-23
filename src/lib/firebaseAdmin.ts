@@ -1,16 +1,18 @@
 import admin from 'firebase-admin';
 
+// This file will now only handle the connection logic when explicitly called by write actions.
+// It will not be initialized on application startup.
+
 let adminDb: admin.firestore.Firestore | null = null;
 let adminAuth: admin.auth.Auth | null = null;
 let isFirebaseConnected = false;
 
-function ensureFirebaseConnected() {
+export function ensureFirebaseConnected() {
   if (admin.apps.length > 0) {
-    // If already initialized, just ensure exports are set and return
     if (!adminDb) adminDb = admin.firestore();
     if (!adminAuth) adminAuth = admin.auth();
-    isFirebaseConnected = true; // Assume connected if initialized
-    return;
+    isFirebaseConnected = true;
+    return { adminDb, adminAuth, isFirebaseConnected };
   }
 
   try {
@@ -32,15 +34,11 @@ function ensureFirebaseConnected() {
       console.log('Firebase Admin SDK initialized successfully.');
     } else {
       isFirebaseConnected = false;
-      console.log('Firebase Admin SDK credentials not found. Running in local mode.');
+      console.log('Firebase Admin SDK credentials not found. Running in local fallback mode.');
     }
   } catch (error: any) {
     console.error('Firebase Admin SDK initialization error:', error.stack);
     isFirebaseConnected = false;
   }
+  return { adminDb, adminAuth, isFirebaseConnected };
 }
-
-// Initial call to set up the connection status
-ensureFirebaseConnected();
-
-export { adminDb, adminAuth, isFirebaseConnected, ensureFirebaseConnected };

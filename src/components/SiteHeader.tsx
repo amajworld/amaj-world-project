@@ -4,6 +4,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import type { MenuItem } from '@/app/admin/menu/page';
+// This action will now read from local files on the client, which is fine.
 import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
 import {
   DropdownMenu,
@@ -33,9 +34,8 @@ const SiteHeader = () => {
   useEffect(() => {
     const fetchHeaderData = async () => {
       try {
-        const menuDoc = await getDocuments<{id: string, data: MenuItem[]}>('site-data');
-        const fetchedMenuData = menuDoc.find(m => m.id === 'menu')?.data || [];
-        setMenuData(fetchedMenuData);
+        const menuDoc = await getDocument<{data: MenuItem[]}>('site-data', 'menu');
+        setMenuData(menuDoc?.data || []);
 
         const fetchedSettings = await getDocument<SiteSettings>('site-data', 'settings');
         setSettings(fetchedSettings);

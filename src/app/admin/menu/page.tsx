@@ -1,6 +1,6 @@
 
 import MenuEditor from './_components/MenuEditor';
-import { getDocuments, setDocument } from '@/app/actions/firestoreActions';
+import { getDocument, setDocument } from '@/app/actions/firestoreActions';
 
 export interface MenuItem {
   id: string;
@@ -21,8 +21,9 @@ async function saveMenu(menuData: MenuItem[]) {
 }
 
 export default async function MenuPage() {
-    const menuDoc = await getDocuments<{id: string, data: MenuItem[]}>('site-data');
-    const menuData = menuDoc.find(m => m.id === 'menu')?.data || [];
+    // The type assertion is needed because getDocument is now generic
+    const menuDoc = await getDocument<{data: MenuItem[]}>('site-data', 'menu');
+    const menuData = menuDoc?.data || [];
 
   return (
     <div className="container mx-auto py-10">

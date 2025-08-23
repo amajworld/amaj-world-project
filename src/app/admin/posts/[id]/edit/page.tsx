@@ -1,6 +1,6 @@
 
 import PostForm from '../../_components/PostForm';
-import { getDocument, getDocuments } from '@/app/actions/firestoreActions';
+import { getDocument } from '@/app/actions/firestoreActions';
 import type { Post } from '@/data/posts';
 import type { MenuItem } from '@/app/admin/menu/page';
 
@@ -11,8 +11,8 @@ export default async function EditPostPage({ params }: { params: { id: string } 
         return <div>Post not found.</div>;
     }
 
-    const menuDoc = await getDocuments<{id: string, data: MenuItem[]}>('site-data');
-    const menuData = menuDoc.find(m => m.id === 'menu')?.data || [];
+    const menuDoc = await getDocument<{data: MenuItem[]}>('site-data', 'menu');
+    const menuData = menuDoc?.data || [];
 
     // Flatten menu items to get all possible categories
     const categories = menuData.flatMap(item => 

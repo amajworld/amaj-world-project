@@ -1,4 +1,4 @@
-import { getDocuments } from '@/app/actions/firestoreActions';
+import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
 import type { Post } from '@/data/posts';
 import type { MenuItem } from '@/app/admin/menu/page';
 import type { MetadataRoute } from 'next';
@@ -43,8 +43,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Dynamic pages: Categories
-  const menuDoc = await getDocuments<{data: MenuItem[]}>('site-data');
-  const menuData = menuDoc.find(m => m.id === 'menu')?.data || [];
+  const menuDoc = await getDocument<{data: MenuItem[]}>('site-data', 'menu');
+  const menuData = menuDoc?.data || [];
   const categoryPaths = getCategoryPaths(menuData);
   const categoryRoutes = categoryPaths.map(path => ({
     url: `${BASE_URL}${path}`,
