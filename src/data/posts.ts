@@ -6,7 +6,7 @@ export type Post = {
   content: string; // HTML content
   imageUrl: string;
   category: string; // Should match a menu href
-  date: string; // Should be in ISO 8601 format
+  date: string | Date; // Should be in ISO 8601 format
   status: 'published' | 'draft' | 'scheduled';
   scheduledAt?: string; // ISO 8601 date string
   dataAiHint?: string;
