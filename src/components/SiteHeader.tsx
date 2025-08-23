@@ -18,7 +18,7 @@ const SiteHeader = () => {
     <header className="bg-background shadow-md">
       <div className="container mx-auto flex h-16 items-center justify-between">
         <div className="flex items-center space-x-16">
-          <Link href="/" className="text-2xl font-bold text-primary">
+          <Link href="/" className="text-2xl font-bold text-primary whitespace-nowrap">
             Amaj World
           </Link>
           <nav>
