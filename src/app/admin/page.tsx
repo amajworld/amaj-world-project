@@ -4,6 +4,7 @@ import type { Post } from '@/data/posts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, FileText, Settings, BarChart2 } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default async function AdminDashboard() {
   const posts = await getDocuments<Post>('posts');
@@ -62,12 +63,16 @@ export default async function AdminDashboard() {
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
         <div className="flex space-x-4">
-            <Link href="/admin/posts/new" className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
-                New Post
-            </Link>
-            <Link href="/admin/menu" className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80">
-                Manage Menu
-            </Link>
+            <Button asChild>
+                <Link href="/admin/posts/new">
+                    New Post
+                </Link>
+            </Button>
+            <Button asChild variant="secondary">
+                <Link href="/admin/menu">
+                    Manage Menu
+                </Link>
+            </Button>
         </div>
       </div>
     </div>
