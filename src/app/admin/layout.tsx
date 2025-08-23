@@ -1,12 +1,8 @@
-
 'use client';
 
 import AdminHeader from "./components/AdminHeader";
 import AdminSidebar from "./components/AdminSidebar";
 import React from 'react';
-
-// This component was causing hydration errors and has been removed.
-// function AppModeWarning() { ... }
 
 export default function AdminLayout({
   children,
@@ -20,7 +16,6 @@ export default function AdminLayout({
         <AdminHeader />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200 dark:bg-gray-800">
           <div className="container mx-auto px-6 py-8">
-            {/* <AppModeWarning /> - Removed to fix production crash */}
             {children}
             </div>
         </main>
