@@ -27,23 +27,39 @@ import { deleteDocument } from '@/app/actions/firestoreActions';
 import { revalidatePostPaths } from '@/app/actions/revalidateActions';
 import { useRouter } from 'next/navigation';
 import { Timestamp } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
 
 
 // Helper function to safely convert date
 const toDate = (date: any): Date | null => {
     if (!date) return null;
     if (date instanceof Date) return date;
-    // Check if it's a Firestore Timestamp-like object
     if (typeof date === 'object' && date !== null && typeof date.toDate === 'function') {
         return date.toDate();
     }
-    // Try creating a new Date from a string or number
     const parsedDate = new Date(date);
     if (!isNaN(parsedDate.getTime())) {
         return parsedDate;
     }
     return null;
 }
+
+// Client-side component to prevent hydration mismatch for dates
+const ClientDate = ({ date }: { date: any }) => {
+    const [displayDate, setDisplayDate] = useState<string | null>(null);
+
+    useEffect(() => {
+        const dateObj = toDate(date);
+        setDisplayDate(dateObj ? format(dateObj, 'MMMM d, yyyy') : 'No date');
+    }, [date]);
+
+    // Render a placeholder on the server and initial client render
+    if (displayDate === null) {
+        return <>...</>;
+    }
+
+    return <>{displayDate}</>;
+};
 
 
 export default function PostList({ posts }: { posts: Post[] }) {
@@ -78,7 +94,6 @@ export default function PostList({ posts }: { posts: Post[] }) {
       </TableHeader>
       <TableBody>
         {posts.map((post) => {
-          const displayDate = toDate(post.date);
           return (
             <TableRow key={post.id}>
                 <TableCell className="hidden sm:table-cell">
@@ -100,7 +115,7 @@ export default function PostList({ posts }: { posts: Post[] }) {
                     {post.category?.split('/').filter(Boolean).pop()?.replace(/-/g, ' ')}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                    {displayDate ? format(displayDate, 'MMMM d, yyyy') : 'No date'}
+                    <ClientDate date={post.date} />
                 </TableCell>
                 <TableCell>
                 <DropdownMenu>
