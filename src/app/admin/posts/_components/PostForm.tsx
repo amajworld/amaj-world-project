@@ -38,11 +38,23 @@ interface PostFormProps {
 const toDate = (date: any): Date | null => {
     if (!date) return null;
     if (date instanceof Date) return date;
+    // Handle Firestore Timestamp
     if (typeof date === 'object' && date !== null && typeof date.toDate === 'function') {
         return date.toDate();
     }
-    const parsedDate = new Date(date);
-    return !isNaN(parsedDate.getTime()) ? parsedDate : new Date();
+    // Handle ISO string
+    if (typeof date === 'string') {
+        const parsedDate = new Date(date);
+        if (!isNaN(parsedDate.getTime())) {
+            return parsedDate;
+        }
+    }
+    // Handle seconds/nanoseconds object from server
+    if (typeof date === 'object' && date !== null && 'seconds' in date && 'nanoseconds' in date) {
+        return new Timestamp(date.seconds, date.nanoseconds).toDate();
+    }
+    
+    return null;
 }
 
 export default function PostForm({ post, categories }: PostFormProps) {
@@ -93,7 +105,7 @@ export default function PostForm({ post, categories }: PostFormProps) {
     // Convert date to Firestore Timestamp
     const submissionData = {
         ...data,
-        date: Timestamp.fromDate(new Date(data.date)),
+        date: data.date ? Timestamp.fromDate(new Date(data.date)) : Timestamp.now(),
         scheduledAt: data.scheduledAt ? Timestamp.fromDate(new Date(data.scheduledAt)) : null,
     };
 

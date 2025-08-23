@@ -41,7 +41,6 @@ export async function getDocuments<T extends {id?: string}>(
     limit?: number;
   }
 ): Promise<T[]> {
-  ensureFirebaseConnected();
   if (!isFirebaseConnected || !adminDb) {
     console.warn(`Database not connected. Attempting to read from local fallback for ${collectionName}.`);
     return readFromLocalFallback(collectionName);
@@ -77,7 +76,6 @@ export async function getDocuments<T extends {id?: string}>(
  * @returns The document data or null if not found.
  */
 export async function getDocument<T extends object>(collectionName: CollectionName, documentId: string): Promise<T | null> {
-  ensureFirebaseConnected();
   if (!isFirebaseConnected || !adminDb) {
     console.warn(`Database not connected. Attempting to read from local fallback for ${collectionName}/${documentId}.`);
     return readFromLocalFallback(collectionName, documentId);
@@ -186,10 +184,8 @@ export async function getPaginatedDocuments<T extends {id?: string}>(
     orderBy?: [string, 'asc' | 'desc'];
   }
 ): Promise<{ documents: T[]; totalPages: number; totalDocs: number }> {
-    ensureFirebaseConnected();
     if (!isFirebaseConnected || !adminDb) {
-        console.warn('Database not connected. Cannot get paginated documents.');
-        // Basic fallback for local development if needed
+        console.warn('Database not connected. Reading paginated documents from local fallback.');
         const allPosts = await readFromLocalFallback<T>('posts');
         const totalDocs = allPosts.length;
         const totalPages = Math.ceil(totalDocs / options.limit);
@@ -232,16 +228,9 @@ const localDataFiles = {
   'socialLinks': 'social-links.json',
   'heroSlides': 'hero-slides.json',
   'ads': 'ads.json',
-  'menu': 'menu.ts' // Special case
 };
 
 async function readFromLocalFallback<T extends {id?: string}>(collectionName: string, documentId?: string): Promise<any> {
-    const fileName = (localDataFiles as any)[collectionName];
-    if (!fileName) {
-        console.error(`No local fallback file defined for collection: ${collectionName}`);
-        return documentId ? null : [];
-    }
-
     // Special handling for menu as it's a .ts file
     if (collectionName === 'site-data' && documentId === 'menu') {
         try {
@@ -263,6 +252,12 @@ async function readFromLocalFallback<T extends {id?: string}>(collectionName: st
         }
     }
 
+    const fileName = (localDataFiles as any)[collectionName];
+    if (!fileName) {
+        console.error(`No local fallback file defined for collection: ${collectionName}`);
+        return documentId ? null : [];
+    }
+
     try {
         const filePath = path.join(process.cwd(), 'src', 'data', fileName);
         const fileContent = await fs.readFile(filePath, 'utf-8');
@@ -270,7 +265,6 @@ async function readFromLocalFallback<T extends {id?: string}>(collectionName: st
 
         if (documentId) {
             if (Array.isArray(data)) {
-                 // The 'id' might be a number or a string in JSON files
                 const doc = data.find(item => String(item.id) === String(documentId));
                 return doc || null;
             } else if (typeof data === 'object' && data !== null) {
@@ -279,7 +273,16 @@ async function readFromLocalFallback<T extends {id?: string}>(collectionName: st
             }
             return null;
         } else {
-            return Array.isArray(data) ? data : [];
+             // For collections, always return an array
+            if(Array.isArray(data)){
+                return data;
+            }
+            if(collectionName === 'site-data' && typeof data === 'object' && data !== null && !Array.isArray(data)){
+                 // Handle case like `settings` which is an object but getDocuments expects an array
+                if (Object.keys(data).length === 0) return [];
+                return [data];
+            }
+            return [];
         }
     } catch (error) {
         console.error(`Failed to read local fallback file ${fileName}:`, error);
