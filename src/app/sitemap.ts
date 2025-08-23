@@ -1,3 +1,4 @@
+
 import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
 import type { Post } from '@/data/posts';
 import type { MenuItem } from '@/app/admin/menu/page';
