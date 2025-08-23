@@ -15,10 +15,12 @@ const SiteFooter = () => {
             </p>
           </div>
 
-          {/* Categories */}
+          {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Categories</h3>
+            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
+              <li><Link href="/about" className="hover:underline">About Us</Link></li>
+              <li><Link href="/contact" className="hover:underline">Contact Us</Link></li>
               {menuData.map((item) =>
                 item.href !== '/' ? (
                   <li key={item.label}>
@@ -31,9 +33,9 @@ const SiteFooter = () => {
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* Information */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Legal</h3>
+            <h3 className="text-lg font-semibold mb-4">Information</h3>
             <ul className="space-y-2 text-sm">
               <li><Link href="/privacy" className="hover:underline">Privacy Policy</Link></li>
               <li><Link href="/terms" className="hover:underline">Terms of Service</Link></li>
