@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PT_Sans } from "next/font/google";
 import "./globals.css";
 import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 
 const ptSans = PT_Sans({
   subsets: ["latin"],
@@ -22,8 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={ptSans.className}>
-        <SiteHeader />
-        <main>{children}</main>
+        <div className="flex flex-col min-h-screen">
+          <SiteHeader />
+          <main className="flex-grow">{children}</main>
+          <SiteFooter />
+        </div>
       </body>
     </html>
   );
