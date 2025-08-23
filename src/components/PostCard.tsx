@@ -29,14 +29,14 @@ const PostCard = ({ post }: PostCardProps) => {
   return (
     <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
       {post.imageUrl && (
-        <Link href={post.href || '#'} className="block">
-            <div className="relative w-full h-48">
+        <Link href={post.href || '#'} className="block overflow-hidden">
+            <div className="relative w-full aspect-w-3 aspect-h-4">
                 <Image
                     src={post.imageUrl}
                     alt={post.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    style={{ objectFit: 'cover' }}
+                    className="object-cover"
                     data-ai-hint={post.dataAiHint}
                 />
             </div>
