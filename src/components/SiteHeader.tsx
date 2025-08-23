@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -31,7 +32,6 @@ const SiteHeader = () => {
 
   useEffect(() => {
     const fetchHeaderData = async () => {
-      setLoading(true);
       try {
         const menuDoc = await getDocument<{data: MenuItem[]}>('site-data', 'menu');
         setMenuData(menuDoc?.data || []);
