@@ -6,9 +6,9 @@ export type Post = {
   content: string; // HTML content
   imageUrl: string;
   category: string; // Should match a menu href
-  date: string | Date; // Should be in ISO 8601 format
+  date: any; // Firestore timestamp or string
   status: 'published' | 'draft' | 'scheduled';
-  scheduledAt?: string; // ISO 8601 date string
+  scheduledAt?: any; // Firestore timestamp or string
   dataAiHint?: string;
   href?: string; // This is a client-side addition, should not be stored
   seoTitle?: string;

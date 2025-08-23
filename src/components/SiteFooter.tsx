@@ -1,17 +1,36 @@
-import Link from 'next/link';
-import { Facebook, Twitter, Instagram } from 'lucide-react';
-import { menuData } from '@/data/menu';
 
-const SiteFooter = () => {
+import Link from 'next/link';
+import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
+import type { MenuItem } from '@/app/admin/menu/page';
+import type { SiteSettings } from '@/app/admin/settings/page';
+import type { SocialLink } from '@/app/admin/social-links/page';
+import { Facebook, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react';
+
+const iconComponents: { [key: string]: React.ElementType } = {
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Youtube,
+};
+
+
+const SiteFooter = async () => {
+  const menuDoc = await getDocuments<{id: string, data: MenuItem[]}>('site-data');
+  const menuData = menuDoc.find(m => m.id === 'menu')?.data || [];
+  
+  const settings = await getDocument<SiteSettings>('site-data', 'settings');
+  const socialLinks = await getDocuments<SocialLink>('socialLinks');
+
   return (
     <footer className="bg-secondary text-secondary-foreground">
       <div className="container mx-auto py-12 px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* About Section */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Amaj World</h3>
+            <h3 className="text-lg font-semibold mb-4">{settings?.siteName || 'Amaj World'}</h3>
             <p className="text-sm">
-              Your destination for curated fashion, beauty, home essentials, and gadgets.
+              {settings?.siteDescription || 'Your destination for curated fashion, beauty, home essentials, and gadgets.'}
             </p>
           </div>
 
@@ -45,22 +64,23 @@ const SiteFooter = () => {
           {/* Social Media */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
-            <div className="flex space-x-4">
-              <Link href="#" className="hover:text-primary">
-                <Facebook size={24} />
-              </Link>
-              <Link href="#" className="hover:text-primary">
-                <Twitter size={24} />
-              </Link>
-              <Link href="#" className="hover:text-primary">
-                <Instagram size={24} />
-              </Link>
-            </div>
+             {socialLinks.length > 0 && (
+                <div className="flex space-x-4">
+                    {socialLinks.map(link => {
+                        const IconComponent = iconComponents[link.platform];
+                        return IconComponent ? (
+                            <Link key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
+                                <IconComponent size={24} />
+                            </Link>
+                        ) : null;
+                    })}
+                </div>
+            )}
           </div>
         </div>
 
         <div className="mt-12 pt-8 border-t border-border/50 text-center text-sm">
-          <p>&copy; {new Date().getFullYear()} Amaj World. All Rights Reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {settings?.siteName || 'Amaj World'}. All Rights Reserved.</p>
         </div>
       </div>
     </footer>
@@ -68,3 +88,4 @@ const SiteFooter = () => {
 };
 
 export default SiteFooter;
+

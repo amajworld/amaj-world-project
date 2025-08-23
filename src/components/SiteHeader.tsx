@@ -2,8 +2,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { menuData } from '@/data/menu';
+import { useState, useEffect } from 'react';
+import type { MenuItem } from '@/app/admin/menu/page';
+import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,40 +18,35 @@ import {
   SheetClose
 } from '@/components/ui/sheet';
 
-import { ChevronDown, Search, Menu as MenuIcon, X } from 'lucide-react';
+import { ChevronDown, Search, Menu as MenuIcon } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import type { SiteSettings } from '@/app/admin/settings/page';
+import Image from 'next/image';
 
 const SiteHeader = () => {
   const [isSheetOpen, setSheetOpen] = useState(false);
+  const [menuData, setMenuData] = useState<MenuItem[]>([]);
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const renderNavLinks = (isMobile: boolean) => (
-    <>
-      {menuData.map((item) =>
-        item.children ? (
-          <DropdownMenu key={item.label}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="text-base justify-start">
-                {item.label}
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {item.children.map((child) => (
-                <DropdownMenuItem key={child.label} asChild>
-                    <Link href={child.href}>{child.label}</Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <Button variant="ghost" asChild className="text-base justify-start" key={item.label}>
-            <Link href={item.href}>{item.label}</Link>
-          </Button>
-        )
-      )}
-    </>
-  );
+  useEffect(() => {
+    const fetchHeaderData = async () => {
+      try {
+        const menuDoc = await getDocuments<{id: string, data: MenuItem[]}>('site-data');
+        const fetchedMenuData = menuDoc.find(m => m.id === 'menu')?.data || [];
+        setMenuData(fetchedMenuData);
+
+        const fetchedSettings = await getDocument<SiteSettings>('site-data', 'settings');
+        setSettings(fetchedSettings);
+      } catch (error) {
+        console.error("Failed to fetch header data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHeaderData();
+  }, []);
 
   return (
     <header className="bg-background shadow-md sticky top-0 z-50">
@@ -58,77 +54,82 @@ const SiteHeader = () => {
         <div className="flex items-center gap-6">
           {/* Mobile Menu */}
           <div className="md:hidden">
-            <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <MenuIcon className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left">
-                <nav className="flex flex-col gap-4 mt-8">
-                  {menuData.map((item) =>
-                    item.children ? (
-                      <div key={item.label}>
-                        <h3 className="font-semibold px-4 py-2">{item.label}</h3>
-                        <div className="flex flex-col pl-4">
-                        {item.children.map((child) => (
-                           <SheetClose asChild key={child.label}>
-                            <Link href={child.href} className="px-4 py-2 text-muted-foreground hover:text-foreground">
-                              {child.label}
-                            </Link>
-                           </SheetClose>
-                        ))}
+             { !loading && menuData.length > 0 && (
+                <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
+                <SheetTrigger asChild>
+                    <Button variant="outline" size="icon">
+                    <MenuIcon className="h-6 w-6" />
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="left">
+                    <nav className="flex flex-col gap-4 mt-8">
+                    {menuData.map((item) =>
+                        item.children ? (
+                        <div key={item.label}>
+                            <h3 className="font-semibold px-4 py-2">{item.label}</h3>
+                            <div className="flex flex-col pl-4">
+                            {item.children.map((child) => (
+                            <SheetClose asChild key={child.label}>
+                                <Link href={child.href} className="px-4 py-2 text-muted-foreground hover:text-foreground">
+                                {child.label}
+                                </Link>
+                            </SheetClose>
+                            ))}
+                            </div>
                         </div>
-                      </div>
-                    ) : (
-                       <SheetClose asChild key={item.label}>
-                        <Link href={item.href} className="font-semibold px-4 py-2">
-                         {item.label}
-                        </Link>
-                       </SheetClose>
-                    )
-                  )}
-                </nav>
-              </SheetContent>
-            </Sheet>
+                        ) : (
+                        <SheetClose asChild key={item.label}>
+                            <Link href={item.href} className="font-semibold px-4 py-2">
+                            {item.label}
+                            </Link>
+                        </SheetClose>
+                        )
+                    )}
+                    </nav>
+                </SheetContent>
+                </Sheet>
+             ) }
           </div>
 
-          <Link href="/" className="text-2xl font-bold text-primary whitespace-nowrap">
-            Amaj World
+          <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-primary whitespace-nowrap">
+             {settings?.logoUrl && <Image src={settings.logoUrl} alt={settings.siteName || 'Logo'} width={32} height={32} className="h-8 w-8" />}
+            {settings?.siteName || 'Amaj World'}
           </Link>
           
           {/* Desktop Menu */}
-          <nav className="hidden md:flex items-center">
-            <ul className="flex items-center space-x-2">
-              {menuData.map((item) =>
-                item.children ? (
-                  <li key={item.label}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="text-base">
-                          {item.label}
-                          <ChevronDown className="ml-2 h-4 w-4" />
+           { !loading && menuData.length > 0 && (
+            <nav className="hidden md:flex items-center">
+                <ul className="flex items-center space-x-2">
+                {menuData.map((item) =>
+                    item.children ? (
+                    <li key={item.label}>
+                        <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="text-base">
+                            {item.label}
+                            <ChevronDown className="ml-2 h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            {item.children.map((child) => (
+                            <DropdownMenuItem key={child.label} asChild>
+                                <Link href={child.href}>{child.label}</Link>
+                            </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                    </li>
+                    ) : (
+                    <li key={item.label}>
+                        <Button variant="ghost" asChild className="text-base">
+                        <Link href={item.href}>{item.label}</Link>
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        {item.children.map((child) => (
-                          <DropdownMenuItem key={child.label} asChild>
-                            <Link href={child.href}>{child.label}</Link>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </li>
-                ) : (
-                  <li key={item.label}>
-                    <Button variant="ghost" asChild className="text-base">
-                      <Link href={item.href}>{item.label}</Link>
-                    </Button>
-                  </li>
-                )
-              )}
-            </ul>
-          </nav>
+                    </li>
+                    )
+                )}
+                </ul>
+            </nav>
+           )}
         </div>
 
         <div className="relative hidden sm:block">
