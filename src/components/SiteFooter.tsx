@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Facebook, Twitter, Instagram } from 'lucide-react';
+import { menuData } from '@/data/menu';
 
 const SiteFooter = () => {
   return (
@@ -14,14 +15,19 @@ const SiteFooter = () => {
             </p>
           </div>
 
-          {/* Quick Links */}
+          {/* Categories */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <h3 className="text-lg font-semibold mb-4">Categories</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/" className="hover:underline">Home</Link></li>
-              <li><Link href="/about" className="hover:underline">About Us</Link></li>
-              <li><Link href="/contact" className="hover:underline">Contact</Link></li>
-              <li><Link href="/all-posts" className="hover:underline">All Posts</Link></li>
+              {menuData.map((item) =>
+                item.href !== '/' ? (
+                  <li key={item.label}>
+                    <Link href={item.href} className="hover:underline">
+                      {item.label}
+                    </Link>
+                  </li>
+                ) : null
+              )}
             </ul>
           </div>
 
