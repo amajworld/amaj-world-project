@@ -2,8 +2,11 @@
 import type { Metadata } from "next";
 import { PT_Sans } from "next/font/google";
 import "./globals.css";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
+import dynamic from "next/dynamic";
+
+const SiteHeader = dynamic(() => import("@/components/SiteHeader"), { ssr: false });
+const SiteFooter = dynamic(() => import("@/components/SiteFooter"), { ssr: false });
+
 
 const ptSans = PT_Sans({
   subsets: ["latin"],

@@ -28,7 +28,6 @@ const SiteHeader = () => {
   const [isSheetOpen, setSheetOpen] = useState(false);
   const [menuData, setMenuData] = useState<MenuItem[]>([]);
   const [settings, setSettings] = useState<SiteSettings | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchHeaderData = async () => {
@@ -40,8 +39,6 @@ const SiteHeader = () => {
         setSettings(fetchedSettings);
       } catch (error) {
         console.error("Failed to fetch header data:", error);
-      } finally {
-        setLoading(false);
       }
     };
     fetchHeaderData();
@@ -53,7 +50,7 @@ const SiteHeader = () => {
         <div className="flex items-center gap-6">
           {/* Mobile Menu */}
           <div className="md:hidden">
-             { !loading && menuData.length > 0 && (
+             { menuData.length > 0 && (
                 <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
                 <SheetTrigger asChild>
                     <Button variant="outline" size="icon">
@@ -96,7 +93,7 @@ const SiteHeader = () => {
           </Link>
           
           {/* Desktop Menu */}
-           { !loading && menuData.length > 0 && (
+           { menuData.length > 0 && (
             <nav className="hidden md:flex items-center">
                 <ul className="flex items-center space-x-2">
                 {menuData.map((item) =>

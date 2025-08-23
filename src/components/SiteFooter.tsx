@@ -22,11 +22,9 @@ const SiteFooter = () => {
   const [menuData, setMenuData] = useState<MenuItem[]>([]);
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchFooterData = async () => {
-      setLoading(true);
       try {
         const menuDoc = await getDocument<{data: MenuItem[]}>('site-data', 'menu');
         setMenuData(menuDoc?.data || []);
@@ -39,8 +37,6 @@ const SiteFooter = () => {
 
       } catch (error) {
         console.error("Failed to fetch footer data:", error);
-      } finally {
-        setLoading(false);
       }
     };
     fetchFooterData();
@@ -61,7 +57,7 @@ const SiteFooter = () => {
           {/* Categories */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Categories</h3>
-            {!loading && (
+            {menuData.length > 0 && (
               <ul className="space-y-2 text-sm">
                 {menuData.map((item) =>
                   item.href !== '/' ? (
@@ -90,7 +86,7 @@ const SiteFooter = () => {
           {/* Social Media */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
-             {!loading && socialLinks.length > 0 && (
+             {socialLinks.length > 0 && (
                 <div className="flex space-x-4">
                     {socialLinks.map(link => {
                         const IconComponent = iconComponents[link.platform];
