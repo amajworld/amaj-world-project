@@ -9,24 +9,9 @@ interface PostCardProps {
   post: Post;
 }
 
-// Helper function to safely convert date
-const toDate = (date: any): Date | null => {
-    if (!date) return null;
-    if (date instanceof Date) return date;
-    // Check if it's a Firestore Timestamp-like object
-    if (typeof date === 'object' && date !== null && typeof date.toDate === 'function') {
-        return date.toDate();
-    }
-    // Try creating a new Date from a string or number
-    const parsedDate = new Date(date);
-    if (!isNaN(parsedDate.getTime())) {
-        return parsedDate;
-    }
-    return null;
-}
-
 const PostCard = ({ post }: PostCardProps) => {
-  const postDate = toDate(post.date);
+  // Now we can safely assume post.date is a string or null
+  const postDate = post.date ? new Date(post.date) : null;
   
   // A simple function to get category name from path
   const getCategoryName = (path: string) => {

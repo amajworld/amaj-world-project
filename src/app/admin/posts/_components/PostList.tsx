@@ -26,41 +26,6 @@ import { format } from 'date-fns';
 import { deleteDocument } from '@/app/actions/firestoreActions';
 import { revalidatePostPaths } from '@/app/actions/revalidateActions';
 import { useRouter } from 'next/navigation';
-import { Timestamp } from 'firebase/firestore';
-import { useState, useEffect } from 'react';
-
-
-// Helper function to safely convert date
-const toDate = (date: any): Date | null => {
-    if (!date) return null;
-    if (date instanceof Date) return date;
-    if (typeof date === 'object' && date !== null && typeof date.toDate === 'function') {
-        return date.toDate();
-    }
-    const parsedDate = new Date(date);
-    if (!isNaN(parsedDate.getTime())) {
-        return parsedDate;
-    }
-    return null;
-}
-
-// Client-side component to prevent hydration mismatch for dates
-const ClientDate = ({ date }: { date: any }) => {
-    const [displayDate, setDisplayDate] = useState<string | null>(null);
-
-    useEffect(() => {
-        const dateObj = toDate(date);
-        setDisplayDate(dateObj ? format(dateObj, 'MMMM d, yyyy') : 'No date');
-    }, [date]);
-
-    // Render a placeholder on the server and initial client render
-    if (displayDate === null) {
-        return <>...</>;
-    }
-
-    return <>{displayDate}</>;
-};
-
 
 export default function PostList({ posts }: { posts: Post[] }) {
     const router = useRouter();
@@ -115,7 +80,7 @@ export default function PostList({ posts }: { posts: Post[] }) {
                     {post.category?.split('/').filter(Boolean).pop()?.replace(/-/g, ' ')}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                    <ClientDate date={post.date} />
+                   {post.date ? format(new Date(post.date), 'MMMM d, yyyy') : 'No date'}
                 </TableCell>
                 <TableCell>
                 <DropdownMenu>

@@ -15,6 +15,15 @@ import PaginationControls from '@/components/PaginationControls';
 
 export const revalidate = 0; // Revalidate this page on every request
 
+// Helper to safely convert Firestore Timestamps or other date formats to ISO strings
+const toISOStringSafe = (date: any): string | null => {
+    if (!date) return null;
+    if (typeof date === 'string') return date;
+    if (date instanceof Date) return date.toISOString();
+    if (typeof date.toDate === 'function') return date.toDate().toISOString();
+    return null;
+}
+
 export default async function PostsPage({
   searchParams,
 }: {
@@ -23,11 +32,18 @@ export default async function PostsPage({
   const page = typeof searchParams.page === 'string' ? Number(searchParams.page) : 1;
   const limit = typeof searchParams.limit === 'string' ? Number(searchParams.limit) : 10;
 
-  const { documents: posts, totalPages, totalDocs } = await getPaginatedDocuments<Post>('posts', {
+  const { documents, totalPages, totalDocs } = await getPaginatedDocuments<Post>('posts', {
     page,
     limit,
     orderBy: ['date', 'desc'],
   });
+
+  // Convert dates to ISO strings on the server before passing to the client component
+  const posts = documents.map(post => ({
+    ...post,
+    date: toISOStringSafe(post.date),
+  }));
+
 
   return (
     <div>
