@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { Post } from '@/data/posts';
+import type { Post } from '@/types/posts';
 import { getDocuments } from '@/app/actions/firestoreActions';
 import PostCard from './PostCard';
 

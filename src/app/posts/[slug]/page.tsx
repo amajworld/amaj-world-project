@@ -1,6 +1,6 @@
 
 import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
-import type { Post } from '@/data/posts';
+import type { Post } from '@/types/posts';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { format } from 'date-fns';

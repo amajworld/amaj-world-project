@@ -1,6 +1,6 @@
 
 import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
-import type { Post } from '@/data/posts';
+import type { Post } from '@/types/posts';
 import type { MenuItem } from '@/types/menu';
 import type { MetadataRoute } from 'next';
 

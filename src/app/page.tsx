@@ -1,7 +1,7 @@
 
 import PostCard from '@/components/PostCard';
 import { getDocuments } from '@/app/actions/firestoreActions';
-import type { Post } from '@/data/posts';
+import type { Post } from '@/types/posts';
 import HeroSlider from '@/components/HeroSlider';
 import type { AdConfig } from '@/types/ads';
 import AdDisplay from '@/components/AdDisplay';
