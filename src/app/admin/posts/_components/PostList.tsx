@@ -25,6 +25,26 @@ import Image from 'next/image';
 import { format } from 'date-fns';
 import { deleteDocument } from '@/app/actions/firestoreActions';
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
+function ClientDate({ date }: { date: any }) {
+    const [isClient, setIsClient] = useState(false);
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    if (!isClient) {
+        return <>...</>;
+    }
+    
+    try {
+        const d = new Date(date);
+        return <>{format(d, 'MMMM d, yyyy')}</>;
+    } catch (e) {
+        return <>Invalid date</>;
+    }
+}
+
 
 export default function PostList({ posts }: { posts: Post[] }) {
     const router = useRouter();
@@ -33,7 +53,6 @@ export default function PostList({ posts }: { posts: Post[] }) {
         if (confirm(`Are you sure you want to delete "${post.title}"?`)) {
             try {
                 await deleteDocument('posts', post.id);
-                // Revalidation is now handled in the server action
                 router.refresh(); 
             } catch (error) {
                 console.error("Failed to delete post:", error);
@@ -57,10 +76,7 @@ export default function PostList({ posts }: { posts: Post[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {posts.map((post) => {
-          // The date is now expected to be a Date object or null
-          const postDate = post.date instanceof Date ? post.date : null;
-          return (
+        {posts.map((post) => (
             <TableRow key={post.id}>
                 <TableCell className="hidden sm:table-cell">
                 <Image
@@ -81,7 +97,7 @@ export default function PostList({ posts }: { posts: Post[] }) {
                     {post.category?.split('/').filter(Boolean).pop()?.replace(/-/g, ' ')}
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
-                   {postDate ? format(postDate, 'MMMM d, yyyy') : 'No date'}
+                   <ClientDate date={post.date} />
                 </TableCell>
                 <TableCell>
                 <DropdownMenu>
@@ -105,11 +121,8 @@ export default function PostList({ posts }: { posts: Post[] }) {
                 </DropdownMenu>
                 </TableCell>
             </TableRow>
-          );
-        })}
+        ))}
       </TableBody>
     </Table>
   );
 }
-
-    

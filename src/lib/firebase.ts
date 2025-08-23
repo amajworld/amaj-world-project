@@ -1,11 +1,4 @@
 
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { firebaseConfig } from "@/app/firebase-config";
-
-// Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+// This file is no longer needed in the new flat-file architecture
+// and can be safely deleted. To avoid breaking any potential lingering imports
+// during the transition, it's being left empty.

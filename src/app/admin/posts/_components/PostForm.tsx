@@ -8,7 +8,6 @@ import {
   addDocument,
   updateDocument,
 } from '@/app/actions/firestoreActions';
-import { revalidatePostPaths } from '@/app/actions/revalidateActions';
 import type { Post } from '@/data/posts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,32 +27,19 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import TiptapEditor from '@/components/TiptapEditor';
-import { Timestamp } from 'firebase/firestore';
 
 interface PostFormProps {
   post?: Post;
   categories: { value: string; label: string }[];
 }
 
-const toDate = (date: any): Date | null => {
+const toDateSafe = (date: any): Date | null => {
     if (!date) return null;
     if (date instanceof Date) return date;
-    // Handle Firestore Timestamp
-    if (typeof date === 'object' && date !== null && typeof date.toDate === 'function') {
-        return date.toDate();
+    const parsedDate = new Date(date);
+    if (!isNaN(parsedDate.getTime())) {
+        return parsedDate;
     }
-    // Handle ISO string
-    if (typeof date === 'string') {
-        const parsedDate = new Date(date);
-        if (!isNaN(parsedDate.getTime())) {
-            return parsedDate;
-        }
-    }
-    // Handle seconds/nanoseconds object from server
-    if (typeof date === 'object' && date !== null && 'seconds' in date && 'nanoseconds' in date) {
-        return new Timestamp(date.seconds, date.nanoseconds).toDate();
-    }
-    
     return null;
 }
 
@@ -76,7 +62,7 @@ export default function PostForm({ post, categories }: PostFormProps) {
     formState: { errors },
   } = useForm<Post>({
     defaultValues: post
-      ? { ...post, date: toDate(post.date) }
+      ? { ...post, date: toDateSafe(post.date) }
       : { status: 'draft', date: new Date() },
   });
 
@@ -87,9 +73,9 @@ export default function PostForm({ post, categories }: PostFormProps) {
   const generateSlug = (title: string) => {
     return title
       .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/[^a-z0-9\\s-]/g, '')
       .trim()
-      .replace(/\s+/g, '-');
+      .replace(/\\s+/g, '-');
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,11 +88,11 @@ export default function PostForm({ post, categories }: PostFormProps) {
     setIsLoading(true);
     setErrorMessage('');
     
-    // Convert date to Firestore Timestamp
+    // Convert date to a serializable format (ISO string)
     const submissionData = {
         ...data,
-        date: data.date ? Timestamp.fromDate(new Date(data.date)) : Timestamp.now(),
-        scheduledAt: data.scheduledAt ? Timestamp.fromDate(new Date(data.scheduledAt)) : null,
+        date: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
+        scheduledAt: data.scheduledAt ? new Date(data.scheduledAt).toISOString() : null,
     };
 
     try {
@@ -115,9 +101,7 @@ export default function PostForm({ post, categories }: PostFormProps) {
       } else {
         await addDocument('posts', submissionData);
       }
-      // Revalidate paths to reflect changes
-      await revalidatePostPaths(submissionData.slug, submissionData.category);
-
+      
       router.push('/admin/posts');
       router.refresh(); // To ensure the posts list is updated
     } catch (error: any) {

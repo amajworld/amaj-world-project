@@ -12,7 +12,6 @@ import type { SiteSettings } from '@/app/admin/settings/page';
 import type { SocialLink } from '@/app/admin/social-links/page';
 import type { SlideConfig } from '@/app/admin/hero-slider/page';
 import type { AdConfig } from '@/app/admin/ads/page';
-import { FieldPath } from 'firebase-admin/firestore';
 
 type CollectionName = 'posts' | 'site-data' | 'socialLinks' | 'heroSlides' | 'ads';
 type DocumentId = 'menu' | 'settings';
@@ -72,7 +71,7 @@ async function writeLocalFile(collection: CollectionName, data: any, docId?: Doc
 export async function getDocuments<T extends {id?: string}>(
   collectionName: CollectionName,
   options?: {
-    where?: [string | FieldPath, FirebaseFirestore.WhereFilterOp, any][];
+    where?: [string, string, any][];
     orderBy?: [string, 'asc' | 'desc'];
     limit?: number;
   }
@@ -94,8 +93,10 @@ export async function getDocuments<T extends {id?: string}>(
     if (options?.orderBy) {
         const [field, direction] = options.orderBy;
         data.sort((a: any, b: any) => {
-            if (a[field] < b[field]) return direction === 'asc' ? -1 : 1;
-            if (a[field] > b[field]) return direction === 'asc' ? 1 : -1;
+            const valA = field === 'date' ? new Date(a[field]).getTime() : a[field];
+            const valB = field === 'date' ? new Date(b[field]).getTime() : b[field];
+            if (valA < valB) return direction === 'asc' ? -1 : 1;
+            if (valA > valB) return direction === 'asc' ? 1 : -1;
             return 0;
         });
     }
@@ -162,7 +163,7 @@ export async function getPaginatedDocuments<T extends {id?: string}>(
   options: {
     page: number;
     limit: number;
-    where?: [string, FirebaseFirestore.WhereFilterOp, any][];
+    where?: [string, string, any][];
     orderBy?: [string, 'asc' | 'desc'];
   }
 ): Promise<{ documents: T[]; totalPages: number; totalDocs: number }> {

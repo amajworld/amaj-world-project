@@ -7,28 +7,12 @@ import { AdConfig } from './admin/ads/page';
 import AdDisplay from '@/components/AdDisplay';
 import { SlideConfig } from './admin/hero-slider/page';
 
-// Helper to safely convert Firestore Timestamps or other date formats to ISO strings
-const toISOStringSafe = (date: any): string | null => {
-    if (!date) return null;
-    if (typeof date === 'string') return date;
-    if (date instanceof Date) return date.toISOString();
-    if (typeof date.toDate === 'function') return date.toDate().toISOString();
-    return null;
-}
-
 export default async function Home() {
-  const documents = await getDocuments<Post>('posts', {
+  const allPosts = await getDocuments<Post>('posts', {
     where: [['status', '==', 'published']],
     orderBy: ['date', 'desc'],
     limit: 12,
   });
-
-  // Convert dates to ISO strings on the server before passing to the client component
-  const allPosts = documents.map(post => ({
-    ...post,
-    date: toISOStringSafe(post.date),
-  }));
-
 
   const slides = await getDocuments<SlideConfig>('heroSlides', { where: [['status', '==', 'active']]});
   const ads = await getDocuments<AdConfig>('ads', { where: [['status', '==', 'active']]});

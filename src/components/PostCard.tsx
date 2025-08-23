@@ -1,19 +1,25 @@
+
+'use client';
+
 import type { Post } from '@/data/posts';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
 
 interface PostCardProps {
   post: Post;
 }
 
 const PostCard = ({ post }: PostCardProps) => {
-  // Now we can safely assume post.date is a string or null
-  const postDate = post.date ? new Date(post.date) : null;
-  
-  // A simple function to get category name from path
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const getCategoryName = (path: string) => {
     if (!path) return 'General';
     const segments = path.split('/').filter(Boolean);
@@ -21,7 +27,6 @@ const PostCard = ({ post }: PostCardProps) => {
     return name.charAt(0).toUpperCase() + name.slice(1);
   };
 
-  // Basic HTML tag stripping
   const getSnippet = (htmlContent: string, length = 100) => {
       const text = htmlContent.replace(/<[^>]+>/g, '');
       return text.length > length ? text.substring(0, length) + '...' : text;
@@ -60,7 +65,7 @@ const PostCard = ({ post }: PostCardProps) => {
       </CardContent>
       <CardFooter>
         <p className="text-xs text-muted-foreground">
-          {postDate ? format(postDate, 'MMMM d, yyyy') : 'No date'}
+          {isClient && post.date ? format(new Date(post.date), 'MMMM d, yyyy') : '...'}
         </p>
       </CardFooter>
     </Card>
