@@ -7,6 +7,12 @@ import { revalidatePath } from 'next/cache';
 
 // --- TYPE DEFINITIONS ---
 import type { Post } from '@/types/posts';
+import type { MenuItem } from '@/types/menu';
+import type { SiteSettings } from '@/types/site-settings';
+import type { SocialLink } from '@/types/social-links';
+import type { SlideConfig } from '@/types/hero-slides';
+import type { AdConfig } from '@/types/ads';
+
 
 // --- DATA FILE PATHS ---
 const postsFilePath = path.join(process.cwd(), 'src', 'data', 'posts.json');
