@@ -3,7 +3,6 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
-import { revalidatePath } from 'next/cache';
 
 // --- TYPE DEFINITIONS ---
 import type { Post } from '@/types/posts';
@@ -39,6 +38,8 @@ async function readData(filePath: string, defaultValue: any = []) {
     }
 }
 
+// Note: The writeData function is now primarily used by admin actions,
+// but kept here in case it's needed for other generic operations.
 async function writeData(filePath: string, data: any) {
     try {
         await fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
