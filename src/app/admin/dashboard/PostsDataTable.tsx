@@ -99,4 +99,3 @@ export default function PostsDataTable({ posts: initialPosts }: PostsDataTablePr
     </Table>
   );
 }
-
