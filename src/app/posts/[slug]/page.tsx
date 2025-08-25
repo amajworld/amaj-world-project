@@ -1,4 +1,3 @@
-
 import { getDocuments, getDocument } from '@/app/actions/firestoreActions';
 import type { Post } from '@/types/posts';
 import { notFound } from 'next/navigation';
@@ -18,8 +17,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
-    const allPosts = await getDocuments<Post>('posts');
-    const post = allPosts.find(p => p.slug === params.slug);
+    const post = await getDocument<Post>('posts', params.slug);
 
     if (!post) {
         return {
@@ -55,8 +53,7 @@ const getCategoryName = (path: string) => {
 
 
 export default async function PostPage({ params }: { params: { slug: string } }) {
-  const allPosts = await getDocuments<Post>('posts');
-  const post = allPosts.find(p => p.slug === params.slug);
+  const post = await getDocument<Post>('posts', params.slug);
 
   if (!post || post.status !== 'published') {
     notFound();
